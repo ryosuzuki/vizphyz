@@ -1,1 +1,1 @@
-# vizphyz
+# VizPhyz
