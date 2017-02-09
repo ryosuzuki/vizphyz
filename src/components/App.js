@@ -32,14 +32,15 @@ class App extends Component {
 
     const container = document.querySelector("#container");
     this.paper.prependTo(container);
-    this.line = []
+    this.segments = []
   }
 
   onMouseDown(e) {
     console.log('mouse down')
     this.mousedown = true
     const pos = this.getCursor(e)
-    this.line.push(pos)
+    this.segments.push(pos)
+    this.draw()
   }
 
   onMouseMove(e) {
@@ -51,17 +52,41 @@ class App extends Component {
   onMouseUp(e) {
     console.log('mouse up')
     this.mousedown = false
+    this.up = this.getCursor(e)
   }
 
   draw() {
-    let path = ''
-    const start = this.line[0]
-    path += `M ${start.x} ${start.y}`
-    for (let i = 1; i < this.line.length; i++) {
-      const point = this.line[i]
-      path += `L ${point.x} ${point.y}`
+    const start = this.segments[0]
+    let d = ''
+    d += `M ${start.x} ${start.y}`
+    for (let i = 1; i < this.segments.length; i++) {
+      const prev = this.segments[i-1]
+      const point = this.segments[i]
+      d += 'C '
+      d += `${prev.x} ${prev.y} `
+      d += `${point.x} ${point.y} `
+      d += `${point.x} ${point.y} `
     }
-    this.paper.path(path)
+    if (!this.path) {
+      this.path = this.paper.path(d)
+    } else {
+      this.path.attr('d', d)
+    }
+    return false
+    /*
+    const start = this.line[0]
+    path += `M ${start.down.x} ${start.down.y}`
+    for (let i = 1; i < this.line.length; i++) {
+      const prev = this.line[i-1]
+      const point = this.line[i]
+      path += 'C '
+      path += `${prev.up.x} ${prev.up.y} `
+      path += `${point.down.x} ${point.down.y} `
+      path += `${point.down.x} ${point.down.y} `
+    }
+    console.log(path)
+    this.path = this.paper.path(path)
+    */
   }
 
   getCursor(e) {
