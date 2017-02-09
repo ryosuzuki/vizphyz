@@ -32,11 +32,14 @@ class App extends Component {
 
     const container = document.querySelector("#container");
     this.paper.prependTo(container);
+    this.line = []
   }
 
   onMouseDown(e) {
     console.log('mouse down')
     this.mousedown = true
+    const pos = this.getCursor(e)
+    this.line.push(pos)
   }
 
   onMouseMove(e) {
@@ -48,6 +51,17 @@ class App extends Component {
   onMouseUp(e) {
     console.log('mouse up')
     this.mousedown = false
+  }
+
+  draw() {
+    let path = ''
+    const start = this.line[0]
+    path += `M ${start.x} ${start.y}`
+    for (let i = 1; i < this.line.length; i++) {
+      const point = this.line[i]
+      path += `L ${point.x} ${point.y}`
+    }
+    this.paper.path(path)
   }
 
   getCursor(e) {
