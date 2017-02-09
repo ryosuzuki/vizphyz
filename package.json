@@ -48,7 +48,8 @@
     "redux-logger": "^2.8.1",
     "redux-thunk": "^2.2.0",
     "redux-watch": "^1.1.1",
-    "semantic-ui-css": "^2.2.4"
+    "semantic-ui-css": "^2.2.4",
+    "snapsvg": "^0.5.1"
   },
   "devDependencies": {
     "babel-cli": "^6.22.2",
@@ -67,6 +68,7 @@
     "css-loader": "^0.26.1",
     "file-loader": "^0.10.0",
     "html-loader": "^0.4.4",
+    "imports-loader": "^0.7.0",
     "jsx-control-statements": "^3.1.5",
     "less": "^2.7.2",
     "less-loader": "^2.2.3",
