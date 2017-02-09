@@ -39,8 +39,8 @@ class App extends Component {
     console.log('mouse down')
     this.mousedown = true
     const pos = this.getCursor(e)
-    this.segments.push(pos)
-    this.draw()
+    this.current = {}
+    this.current.point = pos
   }
 
   onMouseMove(e) {
@@ -52,20 +52,23 @@ class App extends Component {
   onMouseUp(e) {
     console.log('mouse up')
     this.mousedown = false
-    this.up = this.getCursor(e)
+    const pos = this.getCursor(e)
+    this.current.anchor = pos
+    this.segments.push(this.current)
+    this.draw()
   }
 
   draw() {
     const start = this.segments[0]
     let d = ''
-    d += `M ${start.x} ${start.y}`
+    d += `M ${start.point.x} ${start.point.y}`
     for (let i = 1; i < this.segments.length; i++) {
       const prev = this.segments[i-1]
       const point = this.segments[i]
       d += 'C '
-      d += `${prev.x} ${prev.y} `
-      d += `${point.x} ${point.y} `
-      d += `${point.x} ${point.y} `
+      d += `${prev.anchor.x} ${prev.anchor.y} `
+      d += `${point.point.x} ${point.point.y} `
+      d += `${point.point.x} ${point.point.y} `
     }
     if (!this.path) {
       this.path = this.paper.path(d)
