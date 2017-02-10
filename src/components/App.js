@@ -5,152 +5,9 @@ class App extends Component {
     super(props)
     window.app = this
     this.state = {}
-    this.mousedown = false
   }
 
   componentDidMount() {
-
-  var cpstyle, gpbr, gpr, gpstyle, line, lineArray, offset, paper, path, pathArray, updatePath;
-
-  paper = Snap(800, 400);
-
-  gpstyle = {
-    fill: "#725",
-    stroke: "#ddd",
-    strokeWidth: 2
-  };
-
-  cpstyle = {
-    fill: "#387",
-    stroke: "#ddd",
-    strokeWidth: 2,
-    opacity: 1
-  };
-
-  gpr = 7;
-
-  gpbr = 11;
-
-  offset = 8;
-
-  path = paper.path("").mouseover(function() {
-    return this.stop().animate({
-      opacity: .7,
-      strokeWidth: 7
-    }, 100, mina.easeinout);
-  }).mouseout(function() {
-    return this.stop().animate({
-      opacity: 1,
-      strokeWidth: 3
-    }, 600, mina.easeinout);
-  }).attr({
-    stroke: "#387",
-    fill: "none",
-    strokeWidth: 3
-  });
-
-  line = paper.path("").mouseover(function() {
-    return this.stop().animate({
-      opacity: 1
-    }, 100, mina.easeinout);
-  }).mouseout(function() {
-    return this.stop().animate({
-      opacity: .2
-    }, 600, mina.easeinout);
-  }).attr({
-    stroke: "#772222",
-    fill: "none",
-    strokeWidth: 1,
-    opacity: 1
-  });
-
-  pathArray = [];
-
-  lineArray = [];
-
-  updatePath = function() {
-    var count, first, i, len, lineString, node, pathString, ref;
-    first = pathArray[0];
-    count = 0;
-    pathString = "M " + first.x + "," + first.y;
-    lineString = "";
-    ref = pathArray.slice(1);
-    for (i = 0, len = ref.length; i < len; i++) {
-      node = ref[i];
-      pathString += "Q " + node.cptx + "," + node.cpty + "," + node.x + "," + node.y + " ";
-      lineString += "M " + node.cptx + "," + node.cpty + " L " + node.x + ", " + node.y + " ";
-      line.attr({
-        d: lineString
-      });
-    }
-    return path.attr({
-      d: pathString
-    });
-  };
-
-  paper.mouseup(function(e) {
-    var a, b, coords, cpoint, df, dt, pathString;
-    // if (e.target.tagName === "svg" && e.button === 1) {
-    console.log('mouse')
-      paper.circle(e.layerX - offset, e.layerY - offset, gpbr).attr(gpstyle).data('i', pathArray.length).mouseover(function() {
-        return this.stop().animate({
-          r: gpbr
-        }, 600, mina.elastic);
-      }).mouseout(function() {
-        return this.stop().animate({
-          r: gpr
-        }, 300, mina.easeinout);
-      }).drag((function(dx, dy, x, y) {
-        var currentNode;
-        this.attr({
-          cx: x - offset,
-          cy: y - offset
-        });
-        currentNode = pathArray[this.data('i')];
-        currentNode.x = x - offset;
-        currentNode.y = y - offset;
-        return updatePath();
-      }));
-      pathArray.push({
-        x: e.layerX - offset,
-        y: e.layerY - offset,
-        cptx: e.layerX - offset,
-        cpty: e.layerY - offset
-      });
-      dt = pathArray.length - 1;
-      df = pathArray.length - 2;
-      if (df > -1) {
-        a = pathArray[dt].x - pathArray[df].x;
-        b = pathArray[dt].y - pathArray[df].y;
-        cpoint = paper.circle(pathArray[df].x + (a / 3), pathArray[df].y + (b / 3), 3).mouseover(function() {
-          return this.stop().animate({
-            r: 10
-          }, 100, mina.easeinout);
-        }).mouseout(function() {
-          return this.stop().animate({
-            r: 3
-          }, 600, mina.easeinout);
-        }).attr(cpstyle).drag((function(dx, dy, x, y) {
-          return this.attr({
-            cx: x - offset,
-            cy: y - offset
-          }, pathArray[dt].cptx = x - offset, pathArray[dt].cpty = y - offset, updatePath());
-        }));
-      }
-      updatePath();
-      pathString = path.attr('d');
-      coords = (e.layerX - offset) + "," + (e.layerY - offset);
-      return path.attr({
-        d: pathString ? pathString + (" L " + coords) : "M " + coords
-      });
-    // }
-  });
-
-    const container = document.querySelector("#container");
-    paper.prependTo(container);
-
-
-    /*
     this.width = window.innerWidth
     this.height = window.innerHeight
     this.paper = Snap(this.width, this.height).remove();
@@ -168,37 +25,111 @@ class App extends Component {
     const container = document.querySelector("#container");
     this.paper.prependTo(container);
     this.segments = []
-    */
+    this.drawing = false
+    this.mousedown = false
   }
 
   onMouseDown(e) {
-    console.log('mouse down')
+    this.drawing = true
     this.mousedown = true
     const pos = this.getCursor(e)
     this.current = {}
     this.current.point = pos
+    this.paper.rect(pos.x-3, pos.y-3, 6, 6)
+    .attr({
+      fill: '#fff',
+      stroke: '#4F80FF',
+      strokeWidth: 1,
+      cursor: 'move',
+    })
   }
 
   onMouseMove(e) {
-    if (!this.mousedown) return false
-    console.log('mouse move')
-    console.log(this.getCursor(e))
+    if (!this.drawing) return false
+
+    if (this.mousedown) {
+      if (this.stretch_line) {
+        this.stretch_line.attr('display', 'none')
+      }
+      const anchor_1 = this.getCursor(e)
+      const anchor_2 = {
+        x: 2 * this.current.point.x - anchor_1.x,
+        y: 2 * this.current.point.y - anchor_1.y
+      }
+
+      if (!this.anchor_1 || !this.anchor_2) {
+        this.anchor_1 = this.paper.circle(-10, -10, 3)
+        .attr({ fill: '#4F80FF', stroke: '#4F80FF' })
+        this.anchor_2 = this.paper.circle(-10, -10, 3)
+        .attr({ fill: '#4F80FF', stroke: '#4F80FF' })
+        this.anchor_line_1 = this.paper.line(0, 0, 0, 0)
+        .attr({ stroke: '#4F80FF', strokeWidth: 1 })
+        this.anchor_line_2 = this.paper.line(0, 0, 0, 0)
+        .attr({ stroke: '#4F80FF', strokeWidth: 1 })
+      }
+      this.anchor_1.attr({ cx: anchor_1.x, cy: anchor_1.y })
+      this.anchor_2.attr({ cx: anchor_2.x, cy: anchor_2.y })
+      this.anchor_line_1.attr({
+        x1: this.current.point.x,
+        y1: this.current.point.y,
+        x2: anchor_1.x,
+        y2: anchor_1.y,
+      })
+      this.anchor_line_2.attr({
+        x1: this.current.point.x,
+        y1: this.current.point.y,
+        x2: anchor_2.x,
+        y2: anchor_2.y,
+      })
+      this.draw(anchor_2)
+    } else {
+      const pos = this.getCursor(e)
+      const last = this.segments[this.segments.length-1]
+      let d = ''
+      d += 'M '
+      d += `${this.current.point.x} ${this.current.point.y} `
+      d += 'C '
+      d += `${last.anchor_1.x} ${last.anchor_1.y} `
+      d += `${pos.x} ${pos.y} `
+      d += `${pos.x} ${pos.y} `
+      if (!this.stretch_line) {
+        this.stretch_line = this.paper.path('')
+        .attr({
+          stroke: '#22C',
+          strokeWidth: 0.5,
+          fill: 'none'
+        })
+      }
+      this.stretch_line.attr({
+        d: d,
+        display: 'inline'
+      })
+    }
+
   }
 
   onMouseUp(e) {
-    console.log('mouse up')
     this.mousedown = false
-    const pos = this.getCursor(e)
-    const anchor = {
-      x: 2 * this.current.point.x - pos.x,
-      y: 2 * this.current.point.y - pos.y
+    const anchor_1 = this.getCursor(e)
+    this.current.anchor_1 = anchor_1
+    const anchor_2 = {
+      x: 2 * this.current.point.x - anchor_1.x,
+      y: 2 * this.current.point.y - anchor_1.y
     }
-    this.current.anchor = anchor
+    this.current.anchor_2 = anchor_2
     this.segments.push(this.current)
     this.draw()
+    this.anchor_1 = undefined
+    this.anchor_2 = undefined
+    this.anchor_line_1 = undefined
+    this.anchor_line_2 = undefined
   }
 
-  draw() {
+  draw(preview) {
+    if (this.segments.length === 0) {
+      let d = ''
+      return false
+    }
     const start = this.segments[0]
     let d = ''
     d += `M ${start.point.x} ${start.point.y}`
@@ -206,19 +137,27 @@ class App extends Component {
     for (let i = 1; i < this.segments.length; i++) {
       const prev = this.segments[i-1]
       const current = this.segments[i]
-      if (i === 1) {
-        d += 'C '
-        d += `${prev.anchor.x} ${prev.anchor.y} `
-        d += `${current.anchor.x} ${current.anchor.y} `
-        d += `${current.point.x} ${current.point.y} `
-      } else {
-        d += 'S '
-        d += `${current.anchor.x} ${current.anchor.y} `
-        d += `${current.point.x} ${current.point.y} `
-      }
+      d += 'C '
+      d += `${prev.anchor_1.x} ${prev.anchor_1.y} `
+      d += `${current.anchor_2.x} ${current.anchor_2.y} `
+      d += `${current.point.x} ${current.point.y} `
     }
+
+    if (preview) {
+      const last = this.segments[this.segments.length-1]
+      d += 'C '
+      d += `${preview.x} ${preview.y} `
+      d += `${this.current.point.x} ${this.current.point.y} `
+      d += `${this.current.point.x} ${this.current.point.y} `
+    }
+
     if (!this.path) {
       this.path = this.paper.path(d)
+      .attr({
+        stroke: '#999',
+        strokeWidth: 1,
+        fill: 'none'
+      })
     } else {
       this.path.attr('d', d)
     }
