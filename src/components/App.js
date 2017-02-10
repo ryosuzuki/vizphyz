@@ -16,7 +16,9 @@ class App extends Component {
   render() {
     return (
       <div>
+        {/*
         <Sidebar />
+        */}
         <Canvas />
       </div>
     )
