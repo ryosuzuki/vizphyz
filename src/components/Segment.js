@@ -67,6 +67,20 @@ class Segment {
     }
   }
 
+  hideAnchors() {
+    for (let i = 0; i < 2; i++) {
+      this.anchors[i].attr('display', 'none')
+      this.lines[i].attr('display', 'none')
+    }
+  }
+
+  showAnchors() {
+    for (let i = 0; i < 2; i++) {
+      this.anchors[i].attr('display', 'inline')
+      this.lines[i].attr('display', 'inline')
+    }
+  }
+
 }
 
 

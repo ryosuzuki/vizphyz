@@ -14,23 +14,23 @@ class App extends Component {
     this.height = window.innerHeight
     this.paper = Snap(this.width, this.height).remove();
 
-    this.paper.mousedown((e) => {
-      this.onMouseDown(e)
+    this.paper.mousedown((event) => {
+      this.onMouseDown(event)
     })
-    this.paper.mousemove((e) => {
-      this.onMouseMove(e)
+    this.paper.mousemove((event) => {
+      this.onMouseMove(event)
     })
-    this.paper.mouseup((e) => {
-      this.onMouseUp(e)
+    this.paper.mouseup((event) => {
+      this.onMouseUp(event)
     })
-    this.paper.dblclick((e) => {
-      this.onDoubleClick(e)
+    this.paper.dblclick((event) => {
+      this.onDoubleClick(event)
     });
-
 
     const container = document.querySelector("#container");
     this.paper.prependTo(container);
     this.segments = []
+    this.segment = null
     this.drawing = false
     this.mousedown = false
 
@@ -48,20 +48,23 @@ class App extends Component {
     })
   }
 
-  onMouseDown(e) {
+  onMouseDown(event) {
     this.drawing = true
     this.mousedown = true
-    const point = this.getCursor(e)
+    const point = this.getCursor(event)
+    if (this.segment) {
+      this.segment.hideAnchors()
+    }
     this.segment = new Segment(0, this.paper)
     this.segment.updatePoint(point)
     this.segment.updateAnchors(point)
     this.draw()
   }
 
-  onMouseMove(e) {
+  onMouseMove(event) {
     if (!this.drawing) return false
 
-    const point = this.getCursor(e)
+    const point = this.getCursor(event)
     if (this.mousedown) {
       this.draft.attr('display', 'none')
       this.segment.updateAnchors(point)
@@ -79,9 +82,9 @@ class App extends Component {
     }
   }
 
-  onMouseUp(e) {
+  onMouseUp(event) {
     this.mousedown = false
-    const point = this.getCursor(e)
+    const point = this.getCursor(event)
     this.segment.updateAnchors(point)
     this.segments.push(this.segment)
     this.draw()
@@ -112,18 +115,22 @@ class App extends Component {
     this.path.attr('d', d)
   }
 
-  getCursor(e) {
+  getCursor(event) {
     const m = (Snap.matrix(this.paper.node.getScreenCTM())).invert()
-    const ex = e.clientX
-    const ey = e.clientY
+    const ex = event.clientX
+    const ey = event.clientY
     return { x: m.x(ex, ey), y: m.y(ex, ey) }
   }
 
-  onDoubleClick(e) {
-    this.segments = []
+  onDoubleClick(event) {
     this.drawing = false
     this.mousedown = false
     this.path = this.path.clone()
+    this.path.segments = this.segments
+    this.path.segments.map((segment) => {
+      segment.showAnchors()
+    })
+    this.segments = []
   }
 
   render() {
