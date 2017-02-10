@@ -1,0 +1,46 @@
+
+#sidebar {
+  width: 300px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  background: #f6f6f6;
+  box-shadow: inset -1px 0 0 rgba(0,0,0,.1);
+  overflow-y: scroll;
+}
+
+#sidebar .input {
+  width: 280px;
+  margin: 20px 10px;
+}
+
+.event {
+  padding: 20px !important;
+  cursor: pointer;
+}
+
+#sidebar .event:hover {
+  background-color: #efefef !important;
+}
+
+.event .text {
+  max-height: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event img {
+  width: 100%;
+}
+
+.event.select .text {
+  max-height: 550px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event .meta {
+  width: 100%;
+  float: left;
+}

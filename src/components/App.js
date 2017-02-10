@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import Segment from './Segment'
+import Sidebar from './Sidebar'
 
 class App extends Component {
   constructor(props) {
@@ -214,6 +215,7 @@ class App extends Component {
   render() {
     return (
       <div>
+        <Sidebar />
         <div id="container"></div>
       </div>
     )
