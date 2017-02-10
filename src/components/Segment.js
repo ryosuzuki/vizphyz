@@ -18,6 +18,11 @@ class Segment {
       strokeWidth: 1,
       cursor: 'move',
     })
+    .mousedown((event) => {
+      event.preventDefault()
+      console.log('point down ' + this.index)
+      app.pointDown = this.index
+    })
 
     for (let i = 0; i < 2; i++) {
       const anchor = this.paper.circle(-10, -10, 3)
@@ -26,6 +31,11 @@ class Segment {
         stroke: '#4F80FF',
         cursor: 'move',
       })
+      .mousedown((event) => {
+        event.preventDefault()
+        console.log('anchor down ' + this.index + '-' + i)
+        app.anchorDown = `${this.index}-${i}`
+      })
 
       const line = this.paper.line(0, 0, 0, 0)
       .attr({
@@ -33,9 +43,22 @@ class Segment {
         strokeWidth: 1
       })
 
-      this.anchors.push(anchor.clone())
-      this.lines.push(line.clone())
+      this.anchors.push(anchor)
+      this.lines.push(line)
     }
+  }
+
+  movePoint(point) {
+    const diff = {
+      x: point.x - this.point.x,
+      y: point.y - this.point.y,
+    }
+    const anchor = {
+      x: this.anchors[0].x + diff.x,
+      y: this.anchors[0].y + diff.y,
+    }
+    this.updatePoint(point)
+    this.updateAnchors(anchor)
   }
 
   updatePoint(point) {
@@ -43,12 +66,12 @@ class Segment {
     this.point.attr({ x: point.x-3, y: point.y-3 })
   }
 
-  updateAnchors(anchor) {
-    Object.assign(this.anchors[0], {
+  updateAnchors(anchor, id = 0) {
+    Object.assign(this.anchors[id], {
       x: anchor.x,
       y: anchor.y
     })
-    Object.assign(this.anchors[1], {
+    Object.assign(this.anchors[(id+1)%2], {
       x: 2*this.point.x - anchor.x,
       y: 2*this.point.y - anchor.y,
     })
@@ -67,11 +90,37 @@ class Segment {
     }
   }
 
+  toggle() {
+    if (this.point.attr('display') === 'none') {
+      this.show()
+    } else {
+      this.hide()
+    }
+  }
+
+  hide() {
+    this.hidePoint()
+    this.hideAnchors()
+  }
+
+  hidePoint() {
+    this.point.attr('display', 'none')
+  }
+
   hideAnchors() {
     for (let i = 0; i < 2; i++) {
       this.anchors[i].attr('display', 'none')
       this.lines[i].attr('display', 'none')
     }
+  }
+
+  show() {
+    this.showPoint()
+    this.showAnchors()
+  }
+
+  showPoint() {
+    this.point.attr('display', 'inline')
   }
 
   showAnchors() {

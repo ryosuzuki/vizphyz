@@ -30,7 +30,9 @@ class App extends Component {
     const container = document.querySelector("#container");
     this.paper.prependTo(container);
     this.segments = []
+    this.paths = []
     this.segment = null
+    this.path = null
     this.drawing = false
     this.mousedown = false
 
@@ -46,25 +48,91 @@ class App extends Component {
       strokeWidth: 0.5,
       fill: 'none'
     })
+    this.bbox = this.paper.rect(0, 0, 0, 0)
+    .attr({
+      fill: 'none',
+      stroke: '#4F80FF',
+      strokeWidth: 0.5,
+    })
   }
 
   onMouseDown(event) {
+    const point = this.getCursor(event)
+    if (this.paths.length > 0) {
+      const path = this.paths[0]
+      const inside = Snap.path.isPointInside(path, point.x, point.y)
+
+      if (this.pointDown) {
+
+      }
+
+      if (this.anchorDown) {
+
+      }
+      return false
+
+      if (inside) {
+        if (this.bbox.attr('display') === 'none') {
+          const bbox = path.getBBox()
+          this.bbox.attr({
+            display: 'inline',
+            x: bbox.x,
+            y: bbox.y,
+            width: bbox.width,
+            height: bbox.height
+          })
+          path.segments.map((segment) => {
+            segment.hide()
+          })
+          this.showSegments = false
+        } else {
+          this.bbox.attr('display', 'none')
+          path.segments.map((segment) => {
+            segment.show()
+          })
+          this.showSegments = true
+        }
+      } else {
+        this.bbox.attr('display', 'none')
+        path.segments.map((segment) => {
+          segment.hide()
+        })
+        this.showSegments = false
+      }
+
+      return false
+    }
+
     this.drawing = true
     this.mousedown = true
-    const point = this.getCursor(event)
     if (this.segment) {
       this.segment.hideAnchors()
     }
-    this.segment = new Segment(0, this.paper)
+    const index = this.segments.length
+    this.segment = new Segment(index, this.paper)
     this.segment.updatePoint(point)
     this.segment.updateAnchors(point)
     this.draw()
   }
 
   onMouseMove(event) {
-    if (!this.drawing) return false
-
     const point = this.getCursor(event)
+
+    if (this.pointDown) {
+      this.segment = this.segments[this.pointDown]
+      this.segment.movePoint(point)
+      this.draw()
+    }
+
+    if (this.anchorDown) {
+      const index = Number(this.anchorDown.split('-')[0])
+      const id = Number(this.anchorDown.split('-')[1])
+      this.segment = this.segments[index]
+      this.segment.updateAnchors(point, id)
+      this.draw()
+    }
+
+    if (!this.drawing) return false
     if (this.mousedown) {
       this.draft.attr('display', 'none')
       this.segment.updateAnchors(point)
@@ -83,6 +151,11 @@ class App extends Component {
   }
 
   onMouseUp(event) {
+    this.pointDown = null
+    this.anchorDown = null
+
+    if (!this.drawing) return false
+
     this.mousedown = false
     const point = this.getCursor(event)
     this.segment.updateAnchors(point)
@@ -123,14 +196,19 @@ class App extends Component {
   }
 
   onDoubleClick(event) {
+    if (this.paths.length > 0) return false
     this.drawing = false
     this.mousedown = false
-    this.path = this.path.clone()
-    this.path.segments = this.segments
-    this.path.segments.map((segment) => {
+    this.path.segments = Array.from(this.segments)
+
+    // this.paths.push(this.path.clone())
+    this.paths.push(this.path)
+    this.paths[0].segments = Array.from(this.segments)
+    this.paths[0].segments.map((segment) => {
       segment.showAnchors()
     })
-    this.segments = []
+    this.pointDown = null
+    this.anchorDown = null
   }
 
   render() {
