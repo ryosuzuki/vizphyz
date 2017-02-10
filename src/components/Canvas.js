@@ -51,9 +51,36 @@ class Canvas extends Component {
       stroke: '#4F80FF',
       strokeWidth: 0.5,
     })
+
+    this.image = this.paper.image('', 0, 0, 0, 0)
+    .attr({
+      opacity: 0.5
+    })
+  }
+
+  updateImage(image) {
+    let ratio, width, height
+    if (image.width > image.height) {
+      ratio = image.height / image.width
+      width = this.width / 2
+      height = width * ratio
+    } else {
+      ratio = image.width / image.height
+      height = this.height / 2
+      width = height * ratio
+    }
+    Object.assign(this.image, image)
+    this.image.attr({
+      href: image.url,
+      x: (this.width - width) / 2,
+      y: (this.height - height) / 2,
+      width: width,
+      height: height
+    })
   }
 
   onMouseDown(event) {
+
     const point = this.getCursor(event)
     if (this.paths.length > 0) {
       const path = this.paths[0]
@@ -210,7 +237,9 @@ class Canvas extends Component {
 
   render () {
     return (
-      <div id="canvas"></div>
+      <div>
+        <div id="canvas"></div>
+      </div>
     )
   }
 }

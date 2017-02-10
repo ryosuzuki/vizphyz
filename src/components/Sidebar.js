@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import moment from 'moment'
 import ImagesClient from 'google-images'
 
 const CSE_ID = '007741964338032796999:f69392isk_m'
@@ -11,20 +10,30 @@ class Sidebar extends Component {
     super()
     this.state = {
       images: [],
-      keyword: ''
+      keyword: 'elephant'
     }
     window.sidebar = this
   }
 
   componentDidMount() {
+    this.searchImage()
   }
 
   onChange(event) {
     this.setState({ keyword: event.target.value })
+    this.searchImage()
   }
 
   onSubmit(event) {
     event.preventDefault()
+  }
+
+  onClick(image) {
+    console.log(image)
+    window.canvas.updateImage(image)
+  }
+
+  searchImage() {
     console.log('searching...')
     client.search(this.state.keyword)
     .then((images) => {
@@ -47,7 +56,7 @@ class Sidebar extends Component {
           </form>
           { this.state.images.map((image) => {
             return (
-              <div className={ "event" }  id={ image.url } key={ image.url }>
+              <div className={ "event" }  id={ image.url } key={ image.url } onClick={ this.onClick.bind(this, image) }>
                 <div className="content">
                   <div className="summary">
                     { image.type }
