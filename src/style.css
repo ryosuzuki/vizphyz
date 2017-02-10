@@ -1,4 +1,8 @@
 
+#canvas {
+  margin-left: 300px;
+}
+
 #sidebar {
   width: 300px;
   position: fixed;
