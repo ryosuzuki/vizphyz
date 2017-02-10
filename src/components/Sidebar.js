@@ -21,11 +21,11 @@ class Sidebar extends Component {
 
   onChange(event) {
     this.setState({ keyword: event.target.value })
-    this.searchImage()
   }
 
   onSubmit(event) {
     event.preventDefault()
+    this.searchImage()
   }
 
   onClick(image) {
