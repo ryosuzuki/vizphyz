@@ -52,17 +52,13 @@ class Path {
     console.log('path mouse down')
     window.mousedown = this
     this.start = this.canvas.mouse(event)
-    this.st = this.transform().localMatrix
+    this.st = this.transform()
   }
 
   onMouseMove(event) {
     console.log('mouse move')
     const point = this.canvas.mouse(event)
-    const dx = point.x - this.start.x
-    const dy = point.y - this.start.y
-    const sx = this.st.e
-    const sy = this.st.f
-    this.transform(`translate(${sx + dx} ${sy + dy})`)
+    this.move(point, this.st)
   }
 
   onMouseUp(event) {
@@ -70,12 +66,30 @@ class Path {
     const point = this.canvas.mouse(event)
     const dx = point.x - this.start.x
     const dy = point.y - this.start.y
+    this.transform('translate(0, 0)')
     for (let segment of this.segments) {
       segment.transform(dx, dy)
     }
-    this.transform('translate(0, 0)')
   }
 
+  move(point, st) {
+    const dx = point.x - this.canvas.start.x
+    const dy = point.y - this.canvas.start.y
+    const sx = st.localMatrix.e
+    const sy = st.localMatrix.f
+    // const translate = st.globalMatrix.translate(point.x, point.y)
+    this.transform(`translate(${sx + dx}, ${sy + dy})`)
+    this.selector.update()
+  }
+
+  resize(point, st) {
+    const dx = point.x - this.canvas.start.x
+    const dy = point.y - this.canvas.start.y
+    // const sx = st.e
+    // const sy = st.f
+    this.transform(`scale(1, 1.2)`)
+    this.selector.update()
+  }
 
   initSegment(point) {
     if (this.segment) {
@@ -141,6 +155,7 @@ class Path {
   finish(point) {
     this.draftPath.remove()
     this.showControls()
+    this.showSelectors()
   }
 
   showSelectors() {
@@ -152,15 +167,11 @@ class Path {
   }
 
   showControls() {
-    for (let segment of this.segments) {
-      segment.show()
-    }
+    this.controls.attr({ display: 'inline' })
   }
 
   hideControls() {
-    for (let segment of this.segments) {
-      segment.show()
-    }
+    this.controls.attr({ display: 'none' })
   }
 
 }

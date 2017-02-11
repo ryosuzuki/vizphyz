@@ -43,6 +43,7 @@ class Canvas {
     if (window.mousedown) return false
     window.mousedown = this
     const point = this.mouse(event)
+    this.start = point
     this.drawing = true
     if (!this.current.path) {
       const id = this.current.layer.children().length

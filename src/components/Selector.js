@@ -53,8 +53,13 @@ class Selector {
 
     this.path.selectors.add(this.bbox)
     this.path.selectors.add(this.grips)
-
   }
+
+
+  resizePath(point, pos) {
+    this.path.resize(point)
+  }
+
 
   update() {
     const bbox = this.path.getBBox()
@@ -90,12 +95,6 @@ class Selector {
       }
 
     }
-
-  }
-
-  resizePath(point, pos) {
-
-
 
   }
 
