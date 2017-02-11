@@ -1,193 +1,57 @@
-import React, { Component } from 'react'
 import Segment from './Segment'
 
-class Canvas extends Component {
-  constructor(props) {
-    super(props)
-    this.segments = []
-    this.paths = []
-    this.segment = null
-    this.path = null
-    this.drawing = false
-    this.mousedown = false
-    window.canvas = this
-  }
-
-  componentDidMount() {
-    this.width = window.innerWidth - 300
-    this.height = window.innerHeight
-
-    this.paper = Snap(this.width, this.height).remove();
-    this.paper.prependTo(document.querySelector("#canvas"));
-
-    this.paper.mousedown((event) => {
-      this.onMouseDown(event)
-    })
-    this.paper.mousemove((event) => {
-      this.onMouseMove(event)
-    })
-    this.paper.mouseup((event) => {
-      this.onMouseUp(event)
-    })
-    this.paper.dblclick((event) => {
-      this.onDoubleClick(event)
-    });
-
-    this.path = this.paper.path('')
-    .attr({
+class Path {
+  constructor(canvas) {
+    const config = {
       stroke: '#999',
       strokeWidth: 1,
-      fill: 'none'
-    })
-    this.draft = this.paper.path('')
-    .attr({
-      stroke: '#22C',
-      strokeWidth: 0.5,
-      fill: 'none'
-    })
-    this.bbox = this.paper.rect(0, 0, 0, 0)
-    .attr({
-      fill: 'none',
-      stroke: '#4F80FF',
-      strokeWidth: 0.5,
-    })
+      fill: 'non'
+    }
+    this.canvas = canvas
+    this.path = this.canvas.path('').attr(config)
+    this.draft = this.canvas.path('').attr({ stroke: '#22C', strokeWidth: 0.5, fill: 'none' })
+    this.segments = []
+    this.segment = null
 
-    this.image = this.paper.image('', 0, 0, 0, 0)
-    .attr({
-      opacity: 0.5
-    })
+    window.path = this
   }
 
-  updateImage(image) {
-    let ratio, width, height
-    if (image.width > image.height) {
-      ratio = image.height / image.width
-      width = this.width / 2
-      height = width * ratio
-    } else {
-      ratio = image.width / image.height
-      height = this.height / 2
-      width = height * ratio
-    }
-    Object.assign(this.image, image)
-    this.image.attr({
-      href: image.url,
-      x: (this.width - width) / 2,
-      y: (this.height - height) / 2,
-      width: width,
-      height: height
-    })
-  }
-
-  onMouseDown(event) {
-
-    const point = this.getCursor(event)
-    if (this.paths.length > 0) {
-      const path = this.paths[0]
-      const inside = Snap.path.isPointInside(path, point.x, point.y)
-
-      if (this.pointDown) {
-
-      }
-
-      if (this.anchorDown) {
-
-      }
-      return false
-
-      if (inside) {
-        if (this.bbox.attr('display') === 'none') {
-          const bbox = path.getBBox()
-          this.bbox.attr({
-            display: 'inline',
-            x: bbox.x,
-            y: bbox.y,
-            width: bbox.width,
-            height: bbox.height
-          })
-          path.segments.map((segment) => {
-            segment.hide()
-          })
-          this.showSegments = false
-        } else {
-          this.bbox.attr('display', 'none')
-          path.segments.map((segment) => {
-            segment.show()
-          })
-          this.showSegments = true
-        }
-      } else {
-        this.bbox.attr('display', 'none')
-        path.segments.map((segment) => {
-          segment.hide()
-        })
-        this.showSegments = false
-      }
-
-      return false
-    }
-
-    this.drawing = true
-    this.mousedown = true
+  initSegment(point) {
     if (this.segment) {
       this.segment.hideAnchors()
     }
     const index = this.segments.length
-    this.segment = new Segment(index, this.paper)
+    this.segment = new Segment(index, this.canvas)
     this.segment.updatePoint(point)
     this.segment.updateAnchors(point)
-    this.draw()
+    this.update()
   }
 
-  onMouseMove(event) {
-    const point = this.getCursor(event)
-
-    if (this.pointDown) {
-      this.segment = this.segments[this.pointDown]
-      this.segment.movePoint(point)
-      this.draw()
-    }
-
-    if (this.anchorDown) {
-      const index = Number(this.anchorDown.split('-')[0])
-      const id = Number(this.anchorDown.split('-')[1])
-      this.segment = this.segments[index]
-      this.segment.updateAnchors(point, id)
-      this.draw()
-    }
-
-    if (!this.drawing) return false
-    if (this.mousedown) {
-      this.draft.attr('display', 'none')
-      this.segment.updateAnchors(point)
-      this.draw(true)
-    } else {
-      const lseg = this.segments[this.segments.length-1]
-      let d = ''
-      d += 'M '
-      d += `${lseg.point.x} ${lseg.point.y} `
-      d += 'C '
-      d += `${lseg.anchors[0].x} ${lseg.anchors[0].y} `
-      d += `${point.x} ${point.y} `
-      d += `${point.x} ${point.y} `
-      this.draft.attr({ d: d, display: 'inline' })
-    }
+  updateAnchor(point) {
+    this.draft.attr('display', 'none')
+    this.segment.updateAnchors(point)
+    this.update(true)
   }
 
-  onMouseUp(event) {
-    this.pointDown = null
-    this.anchorDown = null
+  drawDraft(point) {
+    const lseg = this.segments[this.segments.length-1]
+    let d = ''
+    d += 'M '
+    d += `${lseg.point.x} ${lseg.point.y} `
+    d += 'C '
+    d += `${lseg.anchors[0].x} ${lseg.anchors[0].y} `
+    d += `${point.x} ${point.y} `
+    d += `${point.x} ${point.y} `
+    this.draft.attr({ d: d, display: 'inline' })
+  }
 
-    if (!this.drawing) return false
-
-    this.mousedown = false
-    const point = this.getCursor(event)
+  addSegment(point) {
     this.segment.updateAnchors(point)
     this.segments.push(this.segment)
-    this.draw()
+    this.update()
   }
 
-  draw(preview) {
+  update(preview) {
     if (this.segments.length === 0) {
       let d = ''
       return false
@@ -212,36 +76,10 @@ class Canvas extends Component {
     this.path.attr('d', d)
   }
 
-  getCursor(event) {
-    const m = (Snap.matrix(this.paper.node.getScreenCTM())).invert()
-    const ex = event.clientX
-    const ey = event.clientY
-    return { x: m.x(ex, ey), y: m.y(ex, ey) }
-  }
-
-  onDoubleClick(event) {
-    if (this.paths.length > 0) return false
-    this.drawing = false
-    this.mousedown = false
+  finish(point) {
     this.path.segments = Array.from(this.segments)
-
-    // this.paths.push(this.path.clone())
-    this.paths.push(this.path)
-    this.paths[0].segments = Array.from(this.segments)
-    this.paths[0].segments.map((segment) => {
-      segment.showAnchors()
-    })
-    this.pointDown = null
-    this.anchorDown = null
   }
 
-  render () {
-    return (
-      <div>
-        <div id="canvas"></div>
-      </div>
-    )
-  }
 }
 
-export default Canvas
+export default Path
