@@ -23,11 +23,11 @@ class Canvas {
 
     this.layer = this.group()
     this.layer.attr({ id: 'layer-0' })
-    this.controls = this.group()
-    this.controls.attr({ id: 'controls' })
-    this.selections = this.group()
-    this.selections.attr({ id: 'selections' })
-    this.objects = []
+    // this.controls = this.group()
+    // this.controls.attr({ id: 'controls' })
+    // this.selections = this.group()
+    // this.selections.attr({ id: 'selections' })
+    // this.objects = []
 
     this.mousedown(this.onMouseDown.bind(this))
     this.mousemove(this.onMouseMove.bind(this))
@@ -42,10 +42,10 @@ class Canvas {
   }
 
   onMouseDown(event) {
-    if (window.hoge) return false
+    if (window.mousedown) return false
+    window.mousedown = this.id
 
     const point = this.mouse(event)
-    this.down = true
     this.drawing = true
     switch (this.mode) {
       case 'select':
@@ -66,17 +66,27 @@ class Canvas {
   }
 
   onMouseMove(event) {
-    if (window.hoge) return false
-
-    if (!this.drawing) return false
-
     const point = this.mouse(event)
+
+    if (!this.drawing) {
+      if (window.mousedown && window.mousedown.includes('point-')) {
+        const id = Number(window.mousedown.split('-')[1])
+        path.segments[id].movePoint(point)
+      }
+      if (window.mousedown && window.mousedown.includes('anchor-')) {
+        const id = Number(window.mousedown.split('-')[1])
+        const i  = Number(window.mousedown.split('-')[2])
+        path.segments[id].moveAnchors(point, i)
+      }
+      return false
+    }
+
     switch (this.mode) {
       case 'select':
 
         break
       case 'path':
-        if (this.down) {
+        if (window.mousedown === this.id) {
           this.current.path.updateAnchor(point)
         } else {
           this.current.path.drawDraft(point)
@@ -85,14 +95,17 @@ class Canvas {
       default:
         break
     }
-
   }
 
   onMouseUp(event) {
-    if (window.hoge) return false
+    if (window.mousedown !== this.id) {
+      window.mousedown = null
+      return false
+    }
+
+    window.mousedown = null
 
     const point = this.mouse(event)
-    this.down = false
     switch (this.mode) {
       case 'select':
 
@@ -106,8 +119,9 @@ class Canvas {
   }
 
   onDoubleClick(event) {
+    window.mousedown = null
+
     const point = this.mouse(event)
-    this.down = false
     this.drawing = false
     switch (this.mode) {
       case 'select':

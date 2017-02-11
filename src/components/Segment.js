@@ -20,11 +20,25 @@ class Segment {
       cursor: 'move',
       id: `point-${this.path.id}-${this.id}`
     })
-    .mousedown((event) => {
-      event.preventDefault()
-      console.log('point down ' + this.index)
-      app.pointDown = this.index
-    })
+
+    this.point.mousedown(function(event) {
+      if (window.mousedown) return false
+      window.mousedown = `point-${this.id}`
+      // this.start = this.path.canvas.mouse(event)
+    }.bind(this))
+
+    /*
+    this.point.mousemove(function(event) {
+      if (window.mousedown !== this.point.attr('id')) return false
+      const point = this.path.canvas.mouse(event)
+      this.movePoint(point)
+    }.bind(this))
+
+    this.point.mousemove(function(event) {
+      if (window.mousedown !== this.point.attr('id')) return false
+      window.mousedown = null
+    }.bind(this))
+    */
 
     for (let i = 0; i < 2; i++) {
       const anchor = this.path.canvas.circle(-10, -10, 3)
@@ -34,11 +48,11 @@ class Segment {
         cursor: 'move',
         id: `anchor-${this.path.id}-${this.id}-${i}`
       })
-      .mousedown((event) => {
-        event.preventDefault()
-        console.log('anchor down ' + this.index + '-' + i)
-        app.anchorDown = `${this.index}-${i}`
-      })
+
+      anchor.mousedown(function(event) {
+        if (window.mousedown) return false
+        window.mousedown = `anchor-${this.id}-${i}`
+      }.bind(this))
 
       const line = this.path.canvas.line(0, 0, 0, 0)
       .attr({
@@ -58,6 +72,7 @@ class Segment {
 
   }
 
+
   movePoint(point) {
     const diff = {
       x: point.x - this.point.x,
@@ -69,6 +84,12 @@ class Segment {
     }
     this.updatePoint(point)
     this.updateAnchors(anchor)
+    this.path.update()
+  }
+
+  moveAnchors(point, id) {
+    this.updateAnchors(point, id)
+    this.path.update()
   }
 
   updatePoint(point) {

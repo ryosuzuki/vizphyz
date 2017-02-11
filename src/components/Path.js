@@ -37,15 +37,37 @@ class Path {
 
     this.group.add(this, this.controls, this.selections)
     this.mousedown(this.onMouseDown.bind(this))
+    this.mousemove(this.onMouseMove.bind(this))
+    this.mouseup(this.onMouseUp.bind(this))
 
-    this.group.drag()
     window.path = this
   }
 
   onMouseDown(event) {
-    window.hoge = true
+    if (window.mousedown) return false
+    window.mousedown = this.id
     console.log('mouse down')
+    this.start = this.canvas.mouse(event)
+    this.st = this.group.transform().localMatrix
   }
+
+  onMouseMove(event) {
+    if (window.mousedown !== this.id) return false
+    console.log('mouse move')
+    const point = this.canvas.mouse(event)
+    const dx = point.x - this.start.x
+    const dy = point.y - this.start.y
+    const sx = this.st.e
+    const sy = this.st.f
+    this.group.transform(`translate(${sx + dx} ${sy + dy})`)
+  }
+
+  onMouseUp(event) {
+    if (window.mousedown !== this.id) return false
+    console.log('mouse up')
+    window.mousedown = null
+  }
+
 
   initSegment(point) {
     if (this.segment) {
