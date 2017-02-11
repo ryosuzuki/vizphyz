@@ -19,6 +19,12 @@ class Selector {
       id: `bbox-${this.path.id}`
     })
 
+    this.bbox.onMouseDown = (event) => {
+      console.log('bbox mousedown')
+      window.mousedown = this.bbox
+    }
+    this.bbox.mousedown(this.bbox.onMouseDown.bind(this))
+
     for (let i = 0; i < 8; i++) {
       const pos = positions[i]
       this.grips[i] = this.path.canvas.rect(-10, -10, 8, 8)
@@ -56,28 +62,28 @@ class Selector {
     for (let grip of this.grips) {
       switch (grip.pos) {
         case 'nw':
-          grip.attr({ x: bbox.x - 4, y: bbox.y - 4 })
+          grip.attr({ x: bbox.x  - 4, y: bbox.y  - 4 })
           break
         case 'n':
-          grip.attr({ x: bbox.x - 4 + bbox.width / 2, y: bbox.y - 4 })
+          grip.attr({ x: bbox.cx - 4, y: bbox.y  - 4 })
           break
         case 'ne':
-          grip.attr({ x: bbox.x - 4 + bbox.width, y: bbox.y - 4 })
+          grip.attr({ x: bbox.x2 - 4, y: bbox.y  - 4 })
           break
         case 'e':
-          grip.attr({ x: bbox.x - 4 + bbox.width, y: bbox.y - 4 + bbox.height / 2 })
+          grip.attr({ x: bbox.x2 - 4, y: bbox.cy - 4 })
           break
         case 'se':
-          grip.attr({ x: bbox.x - 4 + bbox.width, y: bbox.y - 4 + bbox.height })
+          grip.attr({ x: bbox.x2 - 4, y: bbox.y2 - 4 })
           break
         case 's':
-          grip.attr({ x: bbox.x - 4 + bbox.width / 2, y: bbox.y - 4 + bbox.height })
+          grip.attr({ x: bbox.cx - 4, y: bbox.y2 - 4 })
           break
         case 'sw':
-          grip.attr({ x: bbox.x - 4, y: bbox.y - 4 + bbox.height })
+          grip.attr({ x: bbox.x  - 4, y: bbox.y2 - 4 })
           break
         case 'w':
-          grip.attr({ x: bbox.x - 4, y: bbox.y - 4 + bbox.height / 2 })
+          grip.attr({ x: bbox.x  - 4, y: bbox.cy - 4 })
           break
         default:
           break
