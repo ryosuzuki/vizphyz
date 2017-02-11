@@ -21,49 +21,39 @@ class Segment {
       id: `point-${this.path.id}-${this.id}`
     })
 
-    this.point.mousedown(function(event) {
-      if (window.mousedown) return false
-      window.mousedown = `point-${this.id}`
-      // this.start = this.path.canvas.mouse(event)
-    }.bind(this))
-
-    /*
-    this.point.mousemove(function(event) {
-      if (window.mousedown !== this.point.attr('id')) return false
-      const point = this.path.canvas.mouse(event)
+    this.point.onMouseDown = (event) => {
+      console.log('point mouse down')
+      window.mousedown = this.point
+    }
+    this.point.onMouseMove = (event, point) => {
       this.movePoint(point)
-    }.bind(this))
-
-    this.point.mousemove(function(event) {
-      if (window.mousedown !== this.point.attr('id')) return false
-      window.mousedown = null
-    }.bind(this))
-    */
+    }
+    this.point.mousedown(this.point.onMouseDown.bind(this))
 
     for (let i = 0; i < 2; i++) {
-      const anchor = this.path.canvas.circle(-10, -10, 3)
+      this.anchors[i] = this.path.canvas.circle(-10, -10, 3)
       .attr({
         fill: '#4F80FF',
         stroke: '#4F80FF',
         cursor: 'move',
         id: `anchor-${this.path.id}-${this.id}-${i}`
       })
+      this.anchors[i].onMouseDown = (event) => {
+        console.log('anchor mouse down')
+        window.mousedown = this.anchors[i]
+      }
+      this.anchors[i].onMouseMove = (event, point) => {
+        this.moveAnchors(point, i)
+      }
+      this.anchors[i].mousedown(this.anchors[i].onMouseDown.bind(this))
 
-      anchor.mousedown(function(event) {
-        if (window.mousedown) return false
-        window.mousedown = `anchor-${this.id}-${i}`
-      }.bind(this))
 
-      const line = this.path.canvas.line(0, 0, 0, 0)
+      this.lines[i] = this.path.canvas.line(0, 0, 0, 0)
       .attr({
         stroke: '#4F80FF',
         strokeWidth: 1,
         id: `line-${this.path.id}-${this.id}-${i}`
       })
-
-      this.anchors.push(anchor)
-      this.lines.push(line)
-
     }
 
     this.path.controls.add(this.point)
@@ -87,8 +77,8 @@ class Segment {
     this.path.update()
   }
 
-  moveAnchors(point, id) {
-    this.updateAnchors(point, id)
+  moveAnchors(point, i) {
+    this.updateAnchors(point, i)
     this.path.update()
   }
 
@@ -97,12 +87,12 @@ class Segment {
     this.point.attr({ x: point.x-3, y: point.y-3 })
   }
 
-  updateAnchors(anchor, id = 0) {
-    Object.assign(this.anchors[id], {
+  updateAnchors(anchor, i = 0) {
+    Object.assign(this.anchors[i], {
       x: anchor.x,
       y: anchor.y
     })
-    Object.assign(this.anchors[(id+1)%2], {
+    Object.assign(this.anchors[(i+1)%2], {
       x: 2*this.point.x - anchor.x,
       y: 2*this.point.y - anchor.y,
     })

@@ -37,35 +37,31 @@ class Path {
 
     this.group.add(this, this.controls, this.selections)
     this.mousedown(this.onMouseDown.bind(this))
-    this.mousemove(this.onMouseMove.bind(this))
-    this.mouseup(this.onMouseUp.bind(this))
+    // this.mousemove(this.onMouseMove.bind(this))
+    // this.mouseup(this.onMouseUp.bind(this))
 
     window.path = this
   }
 
-  onMouseDown(event) {
-    if (window.mousedown) return false
-    window.mousedown = this.id
-    console.log('mouse down')
+  onMouseDown(event, point) {
+    console.log('path mouse down')
+    window.mousedown = this
     this.start = this.canvas.mouse(event)
-    this.st = this.group.transform().localMatrix
+    this.st = this.transform().localMatrix
   }
 
   onMouseMove(event) {
-    if (window.mousedown !== this.id) return false
     console.log('mouse move')
     const point = this.canvas.mouse(event)
     const dx = point.x - this.start.x
     const dy = point.y - this.start.y
     const sx = this.st.e
     const sy = this.st.f
-    this.group.transform(`translate(${sx + dx} ${sy + dy})`)
+    this.transform(`translate(${sx + dx} ${sy + dy})`)
   }
 
   onMouseUp(event) {
-    if (window.mousedown !== this.id) return false
     console.log('mouse up')
-    window.mousedown = null
   }
 
 

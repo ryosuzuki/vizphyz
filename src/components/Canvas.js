@@ -41,78 +41,46 @@ class Canvas {
 
   onMouseDown(event) {
     if (window.mousedown) return false
-    window.mousedown = this.id
-
+    window.mousedown = this
     const point = this.mouse(event)
     this.drawing = true
-    switch (this.mode) {
-      case 'select':
-
-        break
-      case 'path':
-        if (!this.current.path) {
-
-          const id = this.current.layer.children().length
-          this.current.path = new Path(this)
-          this.current.layer.add(this.current.path.group)
-        }
-        this.current.path.initSegment(point)
-        break
-      default:
-        break
+    if (!this.current.path) {
+      const id = this.current.layer.children().length
+      this.current.path = new Path(this)
+      this.current.layer.add(this.current.path.group)
     }
+    this.current.path.initSegment(point)
   }
 
   onMouseMove(event) {
     const point = this.mouse(event)
-
-    if (!this.drawing) {
-      if (window.mousedown && window.mousedown.includes('point-')) {
-        const id = Number(window.mousedown.split('-')[1])
-        path.segments[id].movePoint(point)
-      }
-      if (window.mousedown && window.mousedown.includes('anchor-')) {
-        const id = Number(window.mousedown.split('-')[1])
-        const i  = Number(window.mousedown.split('-')[2])
-        path.segments[id].moveAnchors(point, i)
-      }
+    if (window.mousedown && window.mousedown !== this) {
+      window.mousedown.onMouseMove(event, point)
       return false
     }
 
-    switch (this.mode) {
-      case 'select':
-
-        break
-      case 'path':
-        if (window.mousedown === this.id) {
-          this.current.path.updateAnchor(point)
-        } else {
-          this.current.path.drawDraft(point)
-        }
-        break
-      default:
-        break
+    if (!this.drawing) {
+      return false
+    }
+    if (window.mousedown === null) {
+      this.current.path.drawDraft(point)
+    }
+    if (window.mousedown === this) {
+      this.current.path.updateAnchor(point)
     }
   }
 
   onMouseUp(event) {
-    if (window.mousedown !== this.id) {
+    const point = this.mouse(event)
+    if (window.mousedown && window.mousedown !== this) {
       window.mousedown = null
+      // window.mousedown.onMouseUp(event, point)
       return false
     }
 
-    window.mousedown = null
-
-    const point = this.mouse(event)
-    switch (this.mode) {
-      case 'select':
-
-        break
-      case 'path':
-        this.current.path.addSegment(point)
-        break
-      default:
-        break
+    if (window.mousedown === this) {
+      window.mousedown = null
+      this.current.path.addSegment(point)
     }
   }
 
