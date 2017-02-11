@@ -1,9 +1,9 @@
 
 class Segment {
 
-  constructor(index, paper) {
-    this.index = index
-    this.paper = paper
+  constructor(path, id) {
+    this.id = id
+    this.path = path
     this.point = null
     this.anchors = []
     this.lines = []
@@ -11,12 +11,14 @@ class Segment {
   }
 
   init() {
-    this.point = this.paper.rect(-10, -10, 6, 6)
+
+    this.point = this.path.canvas.rect(-10, -10, 6, 6)
     .attr({
       fill: '#fff',
       stroke: '#4F80FF',
       strokeWidth: 1,
       cursor: 'move',
+      id: `point-${this.path.id}-${this.id}`
     })
     .mousedown((event) => {
       event.preventDefault()
@@ -24,12 +26,15 @@ class Segment {
       app.pointDown = this.index
     })
 
+    this.path.controls.add(this.point)
+
     for (let i = 0; i < 2; i++) {
-      const anchor = this.paper.circle(-10, -10, 3)
+      const anchor = this.path.canvas.circle(-10, -10, 3)
       .attr({
         fill: '#4F80FF',
         stroke: '#4F80FF',
         cursor: 'move',
+        id: `anchor-${this.path.id}-${this.id}-${i}`
       })
       .mousedown((event) => {
         event.preventDefault()
@@ -37,14 +42,18 @@ class Segment {
         app.anchorDown = `${this.index}-${i}`
       })
 
-      const line = this.paper.line(0, 0, 0, 0)
+      const line = this.path.canvas.line(0, 0, 0, 0)
       .attr({
         stroke: '#4F80FF',
-        strokeWidth: 1
+        strokeWidth: 1,
+        id: `line-${this.path.id}-${this.id}-${i}`
       })
 
       this.anchors.push(anchor)
       this.lines.push(line)
+
+      this.path.controls.add(anchor)
+      this.path.controls.add(line)
     }
   }
 

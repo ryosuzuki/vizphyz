@@ -1,17 +1,43 @@
 import Segment from './Segment'
 
 class Path {
-  constructor(canvas) {
+  constructor(canvas, id) {
+    const object = canvas.path()
+    Object.assign(this, object)
+    const keys = Object.keys(Object.getPrototypeOf(object))
+    for (let key of keys) {
+      this[key] = object[key]
+    }
+
     const config = {
       stroke: '#999',
       strokeWidth: 1,
-      fill: 'non'
+      fill: '#000',
+      opacity: 0.5
     }
+    // this.id = id
+    this.attr(config)
     this.canvas = canvas
-    this.path = this.canvas.path('').attr(config)
-    this.draft = this.canvas.path('').attr({ stroke: '#22C', strokeWidth: 0.5, fill: 'none' })
+    this.draftPath = canvas.path('')
+    this.draftPath.attr({
+      stroke: '#22C',
+      strokeWidth: 0.5,
+      fill: 'none',
+      id: 'draft-path'
+    })
+    // this.canvas.add(this.svg)
+    // this.canvas.add(this.draftSvg)
+
     this.segments = []
     this.segment = null
+
+    this.controls = this.canvas.group()
+    this.controls.attr({ id: `control-${this.id}` })
+    // this.parent.controls.add(this.controls)
+
+    this.selections = this.canvas.group()
+    this.selections.attr({ id: `selection-${this.id}` })
+    // this.canvas.selections.add(this.selections)
 
     window.path = this
   }
@@ -20,15 +46,15 @@ class Path {
     if (this.segment) {
       this.segment.hideAnchors()
     }
-    const index = this.segments.length
-    this.segment = new Segment(index, this.canvas)
+    const id = this.segments.length
+    this.segment = new Segment(this, id)
     this.segment.updatePoint(point)
     this.segment.updateAnchors(point)
     this.update()
   }
 
   updateAnchor(point) {
-    this.draft.attr('display', 'none')
+    this.draftPath.attr('display', 'none')
     this.segment.updateAnchors(point)
     this.update(true)
   }
@@ -42,7 +68,7 @@ class Path {
     d += `${lseg.anchors[0].x} ${lseg.anchors[0].y} `
     d += `${point.x} ${point.y} `
     d += `${point.x} ${point.y} `
-    this.draft.attr({ d: d, display: 'inline' })
+    this.draftPath.attr({ d: d, display: 'inline' })
   }
 
   addSegment(point) {
@@ -73,11 +99,11 @@ class Path {
       d += `${this.segment.point.x} ${this.segment.point.y} `
       d += `${this.segment.point.x} ${this.segment.point.y} `
     }
-    this.path.attr('d', d)
+    this.attr('d', d)
   }
 
   finish(point) {
-    this.path.segments = Array.from(this.segments)
+
   }
 
 }

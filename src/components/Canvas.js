@@ -1,69 +1,62 @@
-import React, { Component } from 'react'
 import Layer from './Layer'
 import Path from './Path'
 
-
-class Canvas extends Component {
-  constructor(props) {
-    super(props)
-    window.canvas = this
-  }
-
-  componentDidMount() {
-    this.width = window.innerWidth - 300
-    this.height = window.innerHeight
-
-    this.mode = 'path'
-
-    this.root = Snap(this.width, this.height).remove();
-    this.root.attr({ id: 'root' })
-    this.root.appendTo(document.querySelector("#workspace"));
-
-    const config = {
-      width: 580,
-      height: 400,
-      x: 200,
-      y: 100
+class Canvas {
+  constructor(root, config) {
+    const object = root.svg()
+    Object.assign(this, object)
+    const keys = Object.keys(Object.getPrototypeOf(object))
+    for (let key of keys) {
+      this[key] = object[key]
     }
 
     const background = {
       fill: '#fff',
-      opacity: 0.5
+      opacity: 0.5,
+      id: 'canvas-background'
     }
+    this.config = Object.assign(config, { id: 'canvas' })
+    this.mode = 'path'
+    this.attr(this.config)
 
-    this.background = this.root.svg(config.x, config.y, config.width, config.height)
-    this.background.attr({ id: 'background' })
-    const unit = this.background.group(
-      this.background.rect(0, 0, 10, 10).attr({ fill: '#fff' }),
-      this.background.rect(0, 0, 5, 5).attr({ fill: '#eee' }),
-      this.background.rect(5, 5, 5, 5).attr({ fill: '#eee' }),
-    )
-    const pattern = unit.pattern(0, 0, 10, 10).attr({ id: 'checker-pattern' })
-    this.background.rect(0, 0, '100%', '100%').attr({ stroke: '#fff', fill: pattern })
+    this.background = this.rect(-1, -1, config.width+2, config.height+2).attr(background)
 
-    this.canvas = this.root.svg(config.x, config.y, config.width, config.height)
-    this.canvas.attr({ id: 'canvas' })
-    this.canvas.rect(-1, -1, config.width+2, config.height+2).attr(background)
+    this.layer = this.group()
+    this.layer.attr({ id: 'layer-0' })
+    this.controls = this.group()
+    this.controls.attr({ id: 'controls' })
+    this.selections = this.group()
+    this.selections.attr({ id: 'selections' })
+    this.objects = []
 
-    const layer = new Layer(this.canvas)
+    this.mousedown(this.onMouseDown.bind(this))
+    this.mousemove(this.onMouseMove.bind(this))
+    this.mouseup(this.onMouseUp.bind(this))
+    this.dblclick(this.onDoubleClick.bind(this))
 
-    this.canvas.mousedown(this.onMouseDown.bind(this))
-    this.canvas.mousemove(this.onMouseMove.bind(this))
-    this.canvas.mouseup(this.onMouseUp.bind(this))
-    this.canvas.dblclick(this.onDoubleClick.bind(this))
+    window.canvas = this
+
+    this.current = {}
   }
 
   onMouseDown(event) {
     const point = this.mouse(event)
-    this.mousedown = true
+    this.down = true
     this.drawing = true
     switch (this.mode) {
       case 'select':
 
         break
       case 'path':
-        if (!this.path) this.path = new Path(this.canvas)
-        this.path.initSegment(point)
+        if (!this.current.path) {
+
+          const id = this.objects.length
+          this.current.path = new Path(this, id)
+          // this.path = new Path(this, id)
+          // this.path.appendTo(this)
+          this.objects.push(this.path)
+        }
+        this.current.path.initSegment(point)
         break
       default:
         break
@@ -79,10 +72,10 @@ class Canvas extends Component {
 
         break
       case 'path':
-        if (this.mousedown) {
-          this.path.updateAnchor(point)
+        if (this.down) {
+          this.current.path.updateAnchor(point)
         } else {
-          this.path.drawDraft(point)
+          this.current.path.drawDraft(point)
         }
         break
       default:
@@ -93,13 +86,13 @@ class Canvas extends Component {
 
   onMouseUp(event) {
     const point = this.mouse(event)
-    this.mousedown = false
+    this.down = false
     switch (this.mode) {
       case 'select':
 
         break
       case 'path':
-        this.path.addSegment(point)
+        this.current.path.addSegment(point)
         break
       default:
         break
@@ -108,14 +101,15 @@ class Canvas extends Component {
 
   onDoubleClick(event) {
     const point = this.mouse(event)
-    this.mousedown = false
+    this.down = false
     this.drawing = false
     switch (this.mode) {
       case 'select':
 
         break
       case 'path':
-        this.path.finish(point)
+        this.current.path.finish(point)
+        this.current.path = null
         break
       default:
         break
@@ -123,16 +117,10 @@ class Canvas extends Component {
   }
 
   mouse(event) {
-    const m = (Snap.matrix(this.canvas.node.getScreenCTM())).invert()
+    const m = (Snap.matrix(this.node.getScreenCTM())).invert()
     const ex = event.clientX
     const ey = event.clientY
     return { x: m.x(ex, ey), y: m.y(ex, ey) }
-  }
-
-  render() {
-    return (
-      <div id="workspace"></div>
-    )
   }
 
 }
