@@ -1,26 +1,24 @@
+import Background from './Background'
 import Layer from './Layer'
 import Path from './Path'
 
 class Canvas {
-  constructor(root, config) {
-    const object = root.svg()
+  constructor(id) {
+    this.width = window.innerWidth - 300
+    this.height = window.innerHeight
+
+    const object = Snap(this.width, this.height).remove();
+    object.appendTo(document.querySelector(id));
     Object.assign(this, object)
     const keys = Object.keys(Object.getPrototypeOf(object))
     for (let key of keys) {
       this[key] = object[key]
     }
 
-    const background = {
-      fill: '#fff',
-      opacity: 0.5,
-      id: 'canvas-background'
-    }
-    this.config = Object.assign(config, { id: 'canvas' })
+    this.attr({ id: 'canvas' })
     this.mode = 'path'
-    this.attr(this.config)
 
-    this.background = this.rect(-1, -1, config.width+2, config.height+2).attr(background)
-
+    this.background = new Background(this)
     this.layer = this.group()
     this.layer.attr({ id: 'layer-0' })
     // this.controls = this.group()

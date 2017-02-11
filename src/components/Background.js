@@ -1,7 +1,14 @@
 
 class Background {
-  constructor(root, config) {
-    const object = root.svg()
+  constructor(canvas) {
+    const config = {
+      width: 580,
+      height: 400,
+      x: 200,
+      y: 100
+    }
+
+    const object = canvas.svg()
     Object.assign(this, object)
     const keys = Object.keys(Object.getPrototypeOf(object))
     for (let key of keys) {
