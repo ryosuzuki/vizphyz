@@ -73,8 +73,8 @@ class Canvas {
   onMouseUp(event) {
     const point = this.mouse(event)
     if (window.mousedown && window.mousedown !== this) {
+      window.mousedown.onMouseUp(event, point)
       window.mousedown = null
-      // window.mousedown.onMouseUp(event, point)
       return false
     }
 

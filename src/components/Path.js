@@ -1,4 +1,5 @@
 import Segment from './Segment'
+import Selector from './Selector'
 
 class Path {
   constructor(canvas) {
@@ -32,13 +33,17 @@ class Path {
     this.group.attr({ id: `group-${this.id}` })
     this.controls = this.canvas.group()
     this.controls.attr({ id: `control-${this.id}` })
-    this.selections = this.canvas.group()
-    this.selections.attr({ id: `selection-${this.id}` })
+    this.selectors = this.canvas.group()
+    this.selectors.attr({ id: `selector-${this.id}` })
 
-    this.group.add(this, this.controls, this.selections)
+    this.selector = new Selector(this)
+
+    this.group.add(this, this.controls, this.selectors)
     this.mousedown(this.onMouseDown.bind(this))
     // this.mousemove(this.onMouseMove.bind(this))
     // this.mouseup(this.onMouseUp.bind(this))
+
+    this.hideSelectors()
 
     window.path = this
   }
@@ -62,6 +67,13 @@ class Path {
 
   onMouseUp(event) {
     console.log('mouse up')
+    const point = this.canvas.mouse(event)
+    const dx = point.x - this.start.x
+    const dy = point.y - this.start.y
+    for (let segment of this.segments) {
+      segment.transform(dx, dy)
+    }
+    this.transform('translate(0, 0)')
   }
 
 
@@ -123,11 +135,20 @@ class Path {
       d += `${this.segment.point.x} ${this.segment.point.y} `
     }
     this.attr('d', d)
+    this.selector.update()
   }
 
   finish(point) {
     this.draftPath.remove()
     this.showControls()
+  }
+
+  showSelectors() {
+    this.selectors.attr({ display: 'inline' })
+  }
+
+  hideSelectors() {
+    this.selectors.attr({ display: 'none' })
   }
 
   showControls() {

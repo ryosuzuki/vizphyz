@@ -11,7 +11,6 @@ class Segment {
   }
 
   init() {
-
     this.point = this.path.canvas.rect(-10, -10, 6, 6)
     .attr({
       fill: '#fff',
@@ -26,6 +25,9 @@ class Segment {
       window.mousedown = this.point
     }
     this.point.onMouseMove = (event, point) => {
+      this.movePoint(point)
+    }
+    this.point.onMouseUp = (event, point) => {
       this.movePoint(point)
     }
     this.point.mousedown(this.point.onMouseDown.bind(this))
@@ -45,6 +47,9 @@ class Segment {
       this.anchors[i].onMouseMove = (event, point) => {
         this.moveAnchors(point, i)
       }
+      this.anchors[i].onMouseUp = (event, point) => {
+        this.moveAnchors(point, i)
+      }
       this.anchors[i].mousedown(this.anchors[i].onMouseDown.bind(this))
 
 
@@ -59,7 +64,14 @@ class Segment {
     this.path.controls.add(this.point)
     this.path.controls.add(this.anchors)
     this.path.controls.add(this.lines)
+  }
 
+  transform(dx, dy) {
+    const point = {
+      x: this.point.x + dx,
+      y: this.point.y + dy,
+    }
+    this.movePoint(point)
   }
 
 
