@@ -26,8 +26,6 @@ class Segment {
       app.pointDown = this.index
     })
 
-    this.path.controls.add(this.point)
-
     for (let i = 0; i < 2; i++) {
       const anchor = this.path.canvas.circle(-10, -10, 3)
       .attr({
@@ -52,9 +50,12 @@ class Segment {
       this.anchors.push(anchor)
       this.lines.push(line)
 
-      this.path.controls.add(anchor)
-      this.path.controls.add(line)
     }
+
+    this.path.controls.add(this.point)
+    this.path.controls.add(this.anchors)
+    this.path.controls.add(this.lines)
+
   }
 
   movePoint(point) {

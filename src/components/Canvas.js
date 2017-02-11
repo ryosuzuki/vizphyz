@@ -36,10 +36,14 @@ class Canvas {
 
     window.canvas = this
 
-    this.current = {}
+    this.current = {
+      layer: this.layer
+    }
   }
 
   onMouseDown(event) {
+    if (window.hoge) return false
+
     const point = this.mouse(event)
     this.down = true
     this.drawing = true
@@ -50,11 +54,9 @@ class Canvas {
       case 'path':
         if (!this.current.path) {
 
-          const id = this.objects.length
-          this.current.path = new Path(this, id)
-          // this.path = new Path(this, id)
-          // this.path.appendTo(this)
-          this.objects.push(this.path)
+          const id = this.current.layer.children().length
+          this.current.path = new Path(this)
+          this.current.layer.add(this.current.path.group)
         }
         this.current.path.initSegment(point)
         break
@@ -64,6 +66,8 @@ class Canvas {
   }
 
   onMouseMove(event) {
+    if (window.hoge) return false
+
     if (!this.drawing) return false
 
     const point = this.mouse(event)
@@ -85,6 +89,8 @@ class Canvas {
   }
 
   onMouseUp(event) {
+    if (window.hoge) return false
+
     const point = this.mouse(event)
     this.down = false
     switch (this.mode) {

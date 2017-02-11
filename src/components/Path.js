@@ -1,7 +1,7 @@
 import Segment from './Segment'
 
 class Path {
-  constructor(canvas, id) {
+  constructor(canvas) {
     const object = canvas.path()
     Object.assign(this, object)
     const keys = Object.keys(Object.getPrototypeOf(object))
@@ -15,7 +15,6 @@ class Path {
       fill: '#000',
       opacity: 0.5
     }
-    // this.id = id
     this.attr(config)
     this.canvas = canvas
     this.draftPath = canvas.path('')
@@ -25,21 +24,27 @@ class Path {
       fill: 'none',
       id: 'draft-path'
     })
-    // this.canvas.add(this.svg)
-    // this.canvas.add(this.draftSvg)
 
     this.segments = []
     this.segment = null
 
+    this.group = this.canvas.group()
+    this.group.attr({ id: `group-${this.id}` })
     this.controls = this.canvas.group()
     this.controls.attr({ id: `control-${this.id}` })
-    // this.parent.controls.add(this.controls)
-
     this.selections = this.canvas.group()
     this.selections.attr({ id: `selection-${this.id}` })
-    // this.canvas.selections.add(this.selections)
 
+    this.group.add(this, this.controls, this.selections)
+    this.mousedown(this.onMouseDown.bind(this))
+
+    this.group.drag()
     window.path = this
+  }
+
+  onMouseDown(event) {
+    window.hoge = true
+    console.log('mouse down')
   }
 
   initSegment(point) {
@@ -103,7 +108,20 @@ class Path {
   }
 
   finish(point) {
+    this.draftPath.remove()
+    this.showControls()
+  }
 
+  showControls() {
+    for (let segment of this.segments) {
+      segment.show()
+    }
+  }
+
+  hideControls() {
+    for (let segment of this.segments) {
+      segment.show()
+    }
   }
 
 }
