@@ -16,7 +16,6 @@ class Canvas {
     }
 
     this.attr({ id: 'canvas' })
-    this.mode = 'path'
 
     this.background = new Background(this)
     this.layer = this.group()
@@ -35,16 +34,20 @@ class Canvas {
     window.canvas = this
 
     this.current = {
+      mode: 'path',
+      drawing: false,
       layer: this.layer
     }
   }
 
   onMouseDown(event) {
     if (window.mousedown) return false
+    if (this.current.mode !== 'path') return false
     window.mousedown = this
     const point = this.mouse(event)
     this.start = point
-    this.drawing = true
+
+    this.current.drawing = true
     if (!this.current.path) {
       const id = this.current.layer.children().length
       this.current.path = new Path(this)
@@ -60,7 +63,7 @@ class Canvas {
       return false
     }
 
-    if (!this.drawing) {
+    if (!this.current.drawing) {
       return false
     }
     if (window.mousedown === null) {
@@ -87,10 +90,8 @@ class Canvas {
 
   onDoubleClick(event) {
     window.mousedown = null
-
     const point = this.mouse(event)
-    this.drawing = false
-    switch (this.mode) {
+    switch (this.current.mode) {
       case 'select':
 
         break
@@ -101,6 +102,8 @@ class Canvas {
       default:
         break
     }
+    this.current.drawing = false
+    this.current.mode = 'select'
   }
 
   mouse(event) {

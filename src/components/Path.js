@@ -42,12 +42,14 @@ class Path {
 
     this.group.add(this, this.controls, this.selectors)
     this.mousedown(this.onMouseDown.bind(this))
+    this.dblclick(this.onDoubleClick.bind(this))
     // this.mousemove(this.onMouseMove.bind(this))
     // this.mouseup(this.onMouseUp.bind(this))
 
     this.hideSelectors()
 
     window.path = this
+    this.mode = null
   }
 
   onMouseDown(event) {
@@ -61,12 +63,13 @@ class Path {
   onMouseMove(event) {
     console.log('mouse move')
     const point = this.canvas.mouse(event)
-    this.move(point, this.st)
+    if (this.mode === 'selector') {
+      this.move(point, this.st)
+    }
   }
 
   onMouseUp(event) {
-    console.log('mouse up')
-
+    console.log('path mouse up')
     let transform = path.transform().localMatrix
     let matrix = []
     for (let key of Object.keys(transform)) {
@@ -80,6 +83,12 @@ class Path {
     const dy = point.y - this.start.y
     this.transform('translate(0, 0)')
     this.updateSegments()
+  }
+
+  onDoubleClick(event) {
+    if (this.canvas.current.mode === 'select') {
+      this.toggle()
+    }
   }
 
   updateSegments() {
@@ -102,7 +111,6 @@ class Path {
     const dy = point.y - this.start.y
     const sx = st.localMatrix.e
     const sy = st.localMatrix.f
-    // const translate = st.globalMatrix.translate(point.x, point.y)
     this.transform(`translate(${sx + dx}, ${sy + dy})`)
     this.selector.update()
   }
@@ -200,7 +208,18 @@ class Path {
   finish(point) {
     this.draftPath.remove()
     this.showControls()
-    this.showSelectors()
+  }
+
+  toggle() {
+    if (this.selectors.attr('display') === 'none') {
+      this.mode = 'selector'
+      this.showSelectors()
+      this.hideControls()
+    } else {
+      this.mode = 'control'
+      this.hideSelectors()
+      this.showControls()
+    }
   }
 
   showSelectors() {
