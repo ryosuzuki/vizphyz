@@ -50,7 +50,8 @@
     "redux-thunk": "^2.2.0",
     "redux-watch": "^1.1.1",
     "semantic-ui-css": "^2.2.4",
-    "snapsvg": "^0.5.1"
+    "snapsvg": "^0.5.1",
+    "svgpath": "^2.2.1"
   },
   "devDependencies": {
     "babel-cli": "^6.22.2",

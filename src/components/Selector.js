@@ -40,13 +40,14 @@ class Selector {
 
       this.grips[i].onMouseDown = (event) => {
         console.log('grip mouse down')
+        this.path.onMouseDown(event)
         window.mousedown = this.grips[i]
       }
       this.grips[i].onMouseMove = (event, point) => {
-        this.resizePath(point, pos)
+        this.path.resize(point, pos)
       }
       this.grips[i].onMouseUp = (event, point) => {
-        this.resizePath(point, pos)
+        this.path.onMouseUp(event)
       }
       this.grips[i].mousedown(this.grips[i].onMouseDown.bind(this))
     }
@@ -54,12 +55,6 @@ class Selector {
     this.path.selectors.add(this.bbox)
     this.path.selectors.add(this.grips)
   }
-
-
-  resizePath(point, pos) {
-    this.path.resize(point)
-  }
-
 
   update() {
     const bbox = this.path.getBBox()

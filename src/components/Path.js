@@ -1,6 +1,8 @@
 import Segment from './Segment'
 import Selector from './Selector'
 
+import svgpath from 'svgpath'
+
 class Path {
   constructor(canvas) {
     const object = canvas.path()
@@ -48,11 +50,12 @@ class Path {
     window.path = this
   }
 
-  onMouseDown(event, point) {
+  onMouseDown(event) {
     console.log('path mouse down')
     window.mousedown = this
     this.start = this.canvas.mouse(event)
     this.st = this.transform()
+    this.sb = this.getBBox()
   }
 
   onMouseMove(event) {
@@ -63,18 +66,40 @@ class Path {
 
   onMouseUp(event) {
     console.log('mouse up')
+
+    let transform = path.transform().localMatrix
+    let matrix = []
+    for (let key of Object.keys(transform)) {
+      matrix.push(transform[key])
+    }
+    const d = this.attr('d')
+    const nd = svgpath(d).matrix(matrix)
+    this.attr('d', nd.toString())
     const point = this.canvas.mouse(event)
     const dx = point.x - this.start.x
     const dy = point.y - this.start.y
     this.transform('translate(0, 0)')
-    for (let segment of this.segments) {
-      segment.transform(dx, dy)
+    this.updateSegments()
+  }
+
+  updateSegments() {
+    const items = Snap.parsePathString(this.attr('d'))
+    for (let i = 0; i < items.length; i++) {
+      let item = items[i]
+      if (item[0] === 'M') {
+        this.segments[0].updatePoint({ x: item[1], y: item[2] })
+      }
+      if (item[0] === 'C') {
+        this.segments[i].updatePoint({ x: item[5], y: item[6] })
+        this.segments[i].updateAnchors({ x: item[3], y: item[4] }, 1)
+        this.segments[i-1].updateAnchors({ x: item[1], y: item[2] }, 0)
+      }
     }
   }
 
   move(point, st) {
-    const dx = point.x - this.canvas.start.x
-    const dy = point.y - this.canvas.start.y
+    const dx = point.x - this.start.x
+    const dy = point.y - this.start.y
     const sx = st.localMatrix.e
     const sy = st.localMatrix.f
     // const translate = st.globalMatrix.translate(point.x, point.y)
@@ -82,12 +107,32 @@ class Path {
     this.selector.update()
   }
 
-  resize(point, st) {
-    const dx = point.x - this.canvas.start.x
-    const dy = point.y - this.canvas.start.y
-    // const sx = st.e
-    // const sy = st.f
-    this.transform(`scale(1, 1.2)`)
+  resize(point, pos) {
+    const dx = point.x - this.start.x
+    const dy = point.y - this.start.y
+    let scaleX = 1 + (dx / this.sb.width)
+    let scaleY = 1 + (dy / this.sb.height)
+    let translateX = this.sb.x
+    let translateY = this.sb.y
+    if (['nw', 'w', 'sw'].includes(pos)) {
+      translateX = this.sb.x2
+      scaleX = 1 - (dx / this.sb.width)
+    }
+    if (['nw', 'n', 'ne'].includes(pos)) {
+      translateY = this.sb.y2
+      scaleY = 1 - (dy / this.sb.height)
+    }
+    if (['n', 's'].includes(pos)) {
+      scaleX = 1
+    }
+    if (['w', 'e'].includes(pos)) {
+      scaleY = 1
+    }
+    let transform = ''
+    transform += `translate(${translateX}, ${translateY}) `
+    transform += `scale(${scaleX}, ${scaleY}) `
+    transform += `translate(${-translateX}, ${-translateY})`
+    this.transform(transform)
     this.selector.update()
   }
 
@@ -168,10 +213,16 @@ class Path {
 
   showControls() {
     this.controls.attr({ display: 'inline' })
+    for (let segment of this.segments) {
+      segment.show()
+    }
   }
 
   hideControls() {
     this.controls.attr({ display: 'none' })
+    for (let segment of this.segments) {
+      segment.hide()
+    }
   }
 
 }

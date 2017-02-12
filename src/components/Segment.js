@@ -74,7 +74,6 @@ class Segment {
     this.movePoint(point)
   }
 
-
   movePoint(point) {
     const diff = {
       x: point.x - this.point.x,
@@ -97,6 +96,12 @@ class Segment {
   updatePoint(point) {
     Object.assign(this.point, point)
     this.point.attr({ x: point.x-3, y: point.y-3 })
+  }
+
+  updateAnchor(point, i = 0) {
+    Object.assign(this.anchors[i], point)
+    this.anchors[i].attr({ cx: point.x, cy: point.y })
+    this.lines[i].attr({ x1: this.point.x, y1: this.point.y, x2: point.x, y2: point.y })
   }
 
   updateAnchors(anchor, i = 0) {
