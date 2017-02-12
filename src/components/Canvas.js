@@ -48,6 +48,7 @@ class Canvas extends Component {
 
 
   onMouseDown(event) {
+    event.preventDefault()
     this.updateMousePosition(event, true)
 
     if (this.props.active) return false
@@ -64,6 +65,7 @@ class Canvas extends Component {
   }
 
   onMouseMove(event) {
+    event.preventDefault()
     this.updateMousePosition(event)
 
     if (this.props.active && this.props.active !== this) {
@@ -83,6 +85,7 @@ class Canvas extends Component {
   }
 
   onMouseUp(event) {
+    event.preventDefault()
     this.updateMousePosition(event)
 
     if (this.props.active && this.props.active !== this) {
@@ -98,6 +101,7 @@ class Canvas extends Component {
   }
 
   onDoubleClick(event) {
+    event.preventDefault()
     this.updateMousePosition(event)
 
     switch (this.props.mode) {
@@ -114,7 +118,7 @@ class Canvas extends Component {
       active: null,
       drawing: false,
       mode: 'select',
-      path: null
+      // path: null
     })
   }
 

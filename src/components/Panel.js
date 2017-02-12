@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { BlockPicker } from 'react-color'
 import actions from '../redux/actions'
-
+import NumberEditor from 'react-number-editor'
 
 class Panel extends Component {
   constructor() {
@@ -9,7 +9,10 @@ class Panel extends Component {
     window.panel = this
     this.state = {
       picker: false,
-      type: 'fill'
+      type: 'fill',
+      fill: null,
+      stroke: null,
+      strokeWidth: 0,
     }
   }
 
@@ -25,25 +28,41 @@ class Panel extends Component {
     this.setState({ picker: false })
   };
 
-  onChange(color) {
+  onColorChange(color) {
     if (!this.props.path) return false
     const path = this.props.path
-    if (this.state.type === 'fill') {
-      path.attr({ fill: color.hex })
-    } else {
-      path.attr({ stroke: color.hex, strokeWidth: 10 })
-    }
+    const hash = {}
+    hash[this.state.type] = color.hex
+    path.attr(hash)
     this.props.store.dispatch(actions.updateState({ path: path }))
+    this.setState(hash)
     console.log(color)
   };
+
+  onValueChange(value) {
+    if (!this.props.path) return false
+    const path = this.props.path
+    path.attr({ strokeWidth: value })
+    this.props.store.dispatch(actions.updateState({ path: path }))
+
+    this.setState({ strokeWidth: value })
+    console.log(value)
+  }
+
+  update() {
+    if (!this.props.path) return false
+
+    this.setState({
+      fill: this.props.path.attr()['fill'],
+      stroke: this.props.path.attr()['stroke'],
+      strokeWidth: Number(this.props.path.attr('strokeWidth').replace('px', ''))
+    })
+  }
 
   render() {
     if (!this.props.path) {
       return <div id="panel"></div>
     }
-
-    let color = 'none'
-    if (this.props.path) color = this.props.path.attr()[this.state.type]
 
     return (
       <div id="panel">
@@ -51,18 +70,28 @@ class Panel extends Component {
           <div className="event">
             <div className="content">
               <div className="summary">
-                <button className="ui button" onClick={ this.onClick.bind(this, 'fill') }>Fill Color</button>
+                <button className="ui button" onClick={ this.onClick.bind(this, 'fill') }>Fill: { this.state.fill }</button>
 
-                <button className="ui button" onClick={ this.onClick.bind(this, 'stroke') }>Stroke Color</button>
+                <br />
 
-                { this.state.picker ? <div id="color-picker-popover">
-                  <div id="color-picker-cover" onClick={ this.onClose.bind(this) }/>
-                  <BlockPicker color={ color } onChange={ this.onChange.bind(this) } />
-                </div> : null }
+                <button className="ui button" onClick={ this.onClick.bind(this, 'stroke') }>Stroke: { this.state.stroke }</button>
+
+                <br />
+
+                <NumberEditor min={0} max={20} step={0.1} decimals={2} value={ this.state.strokeWidth } onValueChange={ this.onValueChange.bind(this) } />,
 
               </div>
               <div className="text">
+
                 Hello world
+
+
+                { this.state.picker ? <div id="color-picker-popover">
+                  <div id="color-picker-cover" onClick={ this.onClose.bind(this) }/>
+                  <BlockPicker color={ 'none' } onChange={ this.onColorChange.bind(this) } />
+                </div> : null }
+
+
               </div>
             </div>
           </div>
