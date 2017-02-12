@@ -115,3 +115,9 @@
   position: absolute;
   z-index: 2;
 }
+
+#save-buttons {
+  position: fixed;
+  right: 220px;
+  bottom: 20px;
+}

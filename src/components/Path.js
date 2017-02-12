@@ -5,7 +5,7 @@ import svgpath from 'svgpath'
 
 class Path {
   constructor(canvas) {
-    const object = canvas.path()
+    const object = canvas.content.path()
     Object.assign(this, object)
     const keys = Object.keys(Object.getPrototypeOf(object))
     for (let key of keys) {
@@ -31,16 +31,18 @@ class Path {
     this.segments = []
     this.segment = null
 
-    this.group = this.canvas.group()
-    this.group.attr({ id: `group-${this.id}` })
     this.controls = this.canvas.group()
     this.controls.attr({ id: `control-${this.id}` })
     this.selectors = this.canvas.group()
     this.selectors.attr({ id: `selector-${this.id}` })
 
+    this.controls.add(this.draftPath)
+
+    this.canvas.controls.add(this.controls)
+    this.canvas.selectors.add(this.selectors)
+
     this.selector = new Selector(this)
 
-    this.group.add(this, this.controls, this.selectors)
     this.mousedown(this.onMouseDown.bind(this))
     this.dblclick(this.onDoubleClick.bind(this))
     this.hideSelectors()

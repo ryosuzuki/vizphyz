@@ -18,7 +18,9 @@ let initialStore = {
   active: null,
   point: null,
   start: null,
-  path: null
+  path: null,
+  offsetX: 0,
+  offsetY: 0,
 }
 
 let store = configureStore(initialStore)

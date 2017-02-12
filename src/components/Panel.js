@@ -61,7 +61,9 @@ class Panel extends Component {
 
   render() {
     if (!this.props.path) {
-      return <div id="panel"></div>
+      return (
+        <div id="panel"></div>
+      )
     }
 
     return (

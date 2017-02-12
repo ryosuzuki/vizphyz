@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import actions from '../redux/actions'
+import SvgSaver from 'svgsaver'
+import moment from 'moment'
 
 import Background from './Background'
 import Layer from './Layer'
@@ -26,12 +28,25 @@ class Canvas extends Component {
     this.attr({ id: 'canvas' })
 
     this.background = new Background(this)
+
+    this.content = canvas.svg()
+    this.content.attr({
+      width: 580,
+      height: 400,
+      x: 100,
+      y: 100,
+      id: 'content',
+      background: '#fff'
+    })
+
     this.layer = this.group()
     this.layer.attr({ id: 'layer-0' })
-    // this.controls = this.group()
-    // this.controls.attr({ id: 'controls' })
-    // this.selections = this.group()
-    // this.selections.attr({ id: 'selections' })
+    this.controls = this.group()
+    this.controls.attr({ id: 'controls' })
+
+    this.selectors = this.group()
+    this.selectors.attr({ id: 'selectors' })
+
     // this.objects = []
 
     this.mousedown(this.onMouseDown.bind(this))
@@ -43,6 +58,8 @@ class Canvas extends Component {
       mode: 'select',
       drawing: false,
       active: null,
+      offsetX: 100,
+      offsetY: 100,
     })
   }
 
@@ -66,7 +83,6 @@ class Canvas extends Component {
 
     if (!this.props.path) {
       const path = new Path(this)
-      this.layer.add(path.group)
       this.updateState({ path: path })
     }
     this.props.path.initSegment()
@@ -134,7 +150,10 @@ class Canvas extends Component {
     const m = (Snap.matrix(this.node.getScreenCTM())).invert()
     const ex = event.clientX
     const ey = event.clientY
-    const point = { x: m.x(ex, ey), y: m.y(ex, ey) }
+    const point = {
+      x: m.x(ex, ey) - this.props.offsetX,
+      y: m.y(ex, ey) - this.props.offsetY
+    }
     if (start) {
       this.updateState({ point: point, start: point })
     } else {
@@ -144,13 +163,33 @@ class Canvas extends Component {
 
   updateState(state) {
     this.props.store.dispatch(actions.updateState(state))
+    this.controls.transform(`translate(${this.props.offsetX}, ${this.props.offsetY})`)
+    this.selectors.transform(`translate(${this.props.offsetX}, ${this.props.offsetY})`)
+
     // this.props.store.dispatch(actions.updateState(state))
     // this.props.store.dispatch(actions.updateState(Object.assign(this.props.state, state)))
   }
 
+  save(type) {
+    const svgsaver = new SvgSaver()
+    const content = document.querySelector('#content')
+    const filename = moment().format('YYYYMMDDHHmm')
+    if (type === 'png') {
+      svgsaver.asPng(content, filename)
+    } else {
+      svgsaver.asSvg(content, filename)
+    }
+  }
+
   render() {
     return (
-      <div id="workspace"></div>
+      <div>
+        <div id="workspace"></div>
+        <div id="save-buttons" className="ui buttons">
+          <button className="ui button" onClick={ this.save.bind(this, 'svg') }>Save SVG</button>
+          <button className="ui button" onClick={ this.save.bind(this, 'png') }>Save PNG</button>
+        </div>
+      </div>
     )
   }
 }

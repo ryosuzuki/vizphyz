@@ -33,6 +33,8 @@ class App extends Component {
           point={ this.props.point }
           start={ this.props.start }
           path={ this.props.path }
+          offsetX={ this.props.offsetX }
+          offsetY={ this.props.offsetY }
           store={ this.props.store }
         />
         <Panel
