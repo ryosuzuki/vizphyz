@@ -1,4 +1,7 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import actions from '../redux/actions'
 
 import Sidebar from './Sidebar'
 import Canvas from './Canvas'
@@ -7,12 +10,10 @@ import Path from './Path'
 class App extends Component {
   constructor(props) {
     super(props)
-    this.state = {}
     window.app = this
   }
 
   componentDidMount() {
-    this.canvas = new Canvas('#workspace')
   }
 
   render() {
@@ -21,11 +22,28 @@ class App extends Component {
         {/*
         <Sidebar />
         */}
-        <div id="workspace"></div>
+        <Canvas
+          mode={ this.props.mode }
+          drawing={ this.props.drawing }
+          active={ this.props.active }
+          point={ this.props.point }
+          start={ this.props.start }
+          path={ this.props.path }
+          store={ this.props.store }
+        />
       </div>
     )
   }
 }
 
-export default App
+function mapStateToProps(state) {
+  return state
+}
 
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(actions, dispatch)
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)

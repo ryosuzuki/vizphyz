@@ -22,12 +22,14 @@ class Segment {
 
     this.point.onMouseDown = (event) => {
       console.log('point mouse down')
-      window.mousedown = this.point
+      this.path.canvas.updateState({ active: this.point })
     }
-    this.point.onMouseMove = (event, point) => {
+    this.point.onMouseMove = (event) => {
+      const point = this.path.canvas.props.point
       this.movePoint(point)
     }
-    this.point.onMouseUp = (event, point) => {
+    this.point.onMouseUp = (event) => {
+      const point = this.path.canvas.props.point
       this.movePoint(point)
     }
     this.point.mousedown(this.point.onMouseDown.bind(this))
@@ -42,16 +44,17 @@ class Segment {
       })
       this.anchors[i].onMouseDown = (event) => {
         console.log('anchor mouse down')
-        window.mousedown = this.anchors[i]
+        this.path.canvas.updateState({ active: this.anchors[i] })
       }
-      this.anchors[i].onMouseMove = (event, point) => {
+      this.anchors[i].onMouseMove = (event) => {
+        const point = this.path.canvas.props.point
         this.moveAnchors(point, i)
       }
-      this.anchors[i].onMouseUp = (event, point) => {
+      this.anchors[i].onMouseUp = (event) => {
+        const point = this.path.canvas.props.point
         this.moveAnchors(point, i)
       }
       this.anchors[i].mousedown(this.anchors[i].onMouseDown.bind(this))
-
 
       this.lines[i] = this.path.canvas.line(0, 0, 0, 0)
       .attr({

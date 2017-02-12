@@ -21,7 +21,7 @@ class Selector {
 
     this.bbox.onMouseDown = (event) => {
       console.log('bbox mousedown')
-      window.mousedown = this.bbox
+      this.path.canvas.updateState({ active: this.bbox })
     }
     this.bbox.mousedown(this.bbox.onMouseDown.bind(this))
 
@@ -41,12 +41,12 @@ class Selector {
       this.grips[i].onMouseDown = (event) => {
         console.log('grip mouse down')
         this.path.onMouseDown(event)
-        window.mousedown = this.grips[i]
+        this.path.canvas.updateState({ active: this.grips[i] })
       }
-      this.grips[i].onMouseMove = (event, point) => {
-        this.path.resize(point, pos)
+      this.grips[i].onMouseMove = (event) => {
+        this.path.resize(pos)
       }
-      this.grips[i].onMouseUp = (event, point) => {
+      this.grips[i].onMouseUp = (event) => {
         this.path.onMouseUp(event)
       }
       this.grips[i].mousedown(this.grips[i].onMouseDown.bind(this))

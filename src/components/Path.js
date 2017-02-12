@@ -48,29 +48,31 @@ class Path {
 
     this.hideSelectors()
 
-    window.path = this
     this.mode = null
+    window.path = this
   }
 
   onMouseDown(event) {
     console.log('path mouse down')
-    window.mousedown = this
-    this.start = this.canvas.mouse(event)
+    this.canvas.updateState({ active: this })
     this.st = this.transform()
     this.sb = this.getBBox()
   }
 
   onMouseMove(event) {
     console.log('mouse move')
-    const point = this.canvas.mouse(event)
     if (this.mode === 'selector') {
-      this.move(point, this.st)
+      // this.move(point, this.st)
+      this.move()
     }
   }
 
   onMouseUp(event) {
     console.log('path mouse up')
-    let transform = path.transform().localMatrix
+    const point = this.canvas.props.point
+    const start = this.canvas.props.start
+
+    let transform = this.transform().localMatrix
     let matrix = []
     for (let key of Object.keys(transform)) {
       matrix.push(transform[key])
@@ -78,15 +80,14 @@ class Path {
     const d = this.attr('d')
     const nd = svgpath(d).matrix(matrix)
     this.attr('d', nd.toString())
-    const point = this.canvas.mouse(event)
-    const dx = point.x - this.start.x
-    const dy = point.y - this.start.y
+    const dx = point.x - start.x
+    const dy = point.y - start.y
     this.transform('translate(0, 0)')
     this.updateSegments()
   }
 
   onDoubleClick(event) {
-    if (this.canvas.current.mode === 'select') {
+    if (this.canvas.props.mode === 'select') {
       this.toggle()
     }
   }
@@ -106,18 +107,22 @@ class Path {
     }
   }
 
-  move(point, st) {
-    const dx = point.x - this.start.x
-    const dy = point.y - this.start.y
-    const sx = st.localMatrix.e
-    const sy = st.localMatrix.f
+  move() {
+    const point = this.canvas.props.point
+    const start = this.canvas.props.start
+    const dx = point.x - start.x
+    const dy = point.y - start.y
+    const sx = this.st.localMatrix.e
+    const sy = this.st.localMatrix.f
     this.transform(`translate(${sx + dx}, ${sy + dy})`)
     this.selector.update()
   }
 
-  resize(point, pos) {
-    const dx = point.x - this.start.x
-    const dy = point.y - this.start.y
+  resize(pos) {
+    const point = this.canvas.props.point
+    const start = this.canvas.props.start
+    const dx = point.x - start.x
+    const dy = point.y - start.y
     let scaleX = 1 + (dx / this.sb.width)
     let scaleY = 1 + (dy / this.sb.height)
     let translateX = this.sb.x
@@ -144,7 +149,8 @@ class Path {
     this.selector.update()
   }
 
-  initSegment(point) {
+  initSegment() {
+    const point = this.canvas.props.point
     if (this.segment) {
       this.segment.hideAnchors()
     }
@@ -155,13 +161,15 @@ class Path {
     this.update()
   }
 
-  updateAnchor(point) {
+  updateAnchor() {
+    const point = this.canvas.props.point
     this.draftPath.attr('display', 'none')
     this.segment.updateAnchors(point)
     this.update(true)
   }
 
-  drawDraft(point) {
+  drawDraft() {
+    const point = this.canvas.props.point
     const lseg = this.segments[this.segments.length-1]
     let d = ''
     d += 'M '
@@ -173,7 +181,8 @@ class Path {
     this.draftPath.attr({ d: d, display: 'inline' })
   }
 
-  addSegment(point) {
+  addSegment() {
+    const point = this.canvas.props.point
     this.segment.updateAnchors(point)
     this.segments.push(this.segment)
     this.update()
@@ -205,7 +214,8 @@ class Path {
     this.selector.update()
   }
 
-  finish(point) {
+  finish() {
+    const point = this.canvas.props.point
     this.draftPath.remove()
     this.showControls()
   }
