@@ -43,9 +43,6 @@ class Path {
     this.group.add(this, this.controls, this.selectors)
     this.mousedown(this.onMouseDown.bind(this))
     this.dblclick(this.onDoubleClick.bind(this))
-    // this.mousemove(this.onMouseMove.bind(this))
-    // this.mouseup(this.onMouseUp.bind(this))
-
     this.hideSelectors()
 
     this.mode = null

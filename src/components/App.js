@@ -5,7 +5,7 @@ import actions from '../redux/actions'
 
 import Sidebar from './Sidebar'
 import Canvas from './Canvas'
-import Path from './Path'
+import Panel from './Panel'
 
 class App extends Component {
   constructor(props) {
@@ -28,6 +28,11 @@ class App extends Component {
           active={ this.props.active }
           point={ this.props.point }
           start={ this.props.start }
+          path={ this.props.path }
+          store={ this.props.store }
+        />
+        <Panel
+          active={ this.props.active }
           path={ this.props.path }
           store={ this.props.store }
         />

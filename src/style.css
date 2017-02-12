@@ -19,6 +19,17 @@
   margin: 20px 10px;
 }
 
+#panel {
+  width: 300px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  background: #555;
+  box-shadow: inset -1px 0 0 rgba(0,0,0,.1);
+  overflow-y: scroll;
+}
+
 .event {
   padding: 20px !important;
   cursor: pointer;
@@ -47,4 +58,17 @@
 .event .meta {
   width: 100%;
   float: left;
+}
+
+#color-picker-cover {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+}
+
+#color-picker-popover {
+  position: absolute;
+  z-index: 2;
 }
