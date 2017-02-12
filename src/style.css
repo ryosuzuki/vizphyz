@@ -6,7 +6,9 @@
 
 #workspace {
   background: #444;
+  margin-left: 300px
 }
+
 
 #sidebar {
   width: 300px;
@@ -24,8 +26,44 @@
   margin: 20px 10px;
 }
 
+#mode {
+  width: 50px;
+  position: fixed;
+  left: 300px;
+  top: 0;
+  height: 100vh;
+  background: #2f2f2c;
+  padding-top: 60px;
+}
+
+#mode i {
+  color: #888;
+  font-size: 1.7em;
+  margin: 14px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+#mode i:hover {
+  color: #fff;
+}
+
+#mode .active {
+  color: #66e0ff;
+}
+
+#mode .active:hover {
+  color: #66e0ff;
+}
+
+
+#mode .disable {
+  color: #888;
+}
+
+
 #panel {
-  width: 300px;
+  width: 200px;
   position: fixed;
   right: 0;
   top: 0;

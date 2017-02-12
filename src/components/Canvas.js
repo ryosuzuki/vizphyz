@@ -12,7 +12,7 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
-    this.width = window.innerWidth - 300
+    this.width = window.innerWidth - 300 - 200
     this.height = window.innerHeight
 
     const object = Snap(this.width, this.height).remove();
@@ -40,7 +40,7 @@ class Canvas extends Component {
     this.dblclick(this.onDoubleClick.bind(this))
 
     this.updateState({
-      mode: 'path',
+      mode: 'select',
       drawing: false,
       active: null,
     })
@@ -52,6 +52,14 @@ class Canvas extends Component {
     this.updateMousePosition(event, true)
 
     if (this.props.active) return false
+
+    if (this.props.mode === 'select' && this.props.path) {
+      this.props.path.hideSelectors()
+      this.props.path.hideControls()
+      this.updateState({ path: null })
+      return false
+    }
+
     if (this.props.mode !== 'path') return false
 
     this.updateState({ active: this, drawing: true })

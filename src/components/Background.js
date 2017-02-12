@@ -4,7 +4,7 @@ class Background {
     const config = {
       width: 580,
       height: 400,
-      x: 200,
+      x: 100,
       y: 100
     }
 

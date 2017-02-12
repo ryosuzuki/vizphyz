@@ -10,7 +10,7 @@ class Sidebar extends Component {
     super()
     this.state = {
       images: [],
-      keyword: 'elephant'
+      keyword: ''
     }
     window.sidebar = this
   }
@@ -35,6 +35,10 @@ class Sidebar extends Component {
 
   searchImage() {
     console.log('searching...')
+    if (this.state.keyword === '') {
+      this.setState({ images: [] })
+      return false
+    }
     client.search(this.state.keyword)
     .then((images) => {
       console.log(images)

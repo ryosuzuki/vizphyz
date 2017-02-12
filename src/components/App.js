@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux'
 import actions from '../redux/actions'
 
 import Sidebar from './Sidebar'
+import Mode from './Mode'
 import Canvas from './Canvas'
 import Panel from './Panel'
 
@@ -19,9 +20,12 @@ class App extends Component {
   render() {
     return (
       <div>
-        {/*
         <Sidebar />
-        */}
+        <Mode
+          mode={ this.props.mode }
+          path={ this.props.path }
+          store={ this.props.store }
+        />
         <Canvas
           mode={ this.props.mode }
           drawing={ this.props.drawing }

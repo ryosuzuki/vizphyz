@@ -51,6 +51,10 @@ class Path {
 
   onMouseDown(event) {
     console.log('path mouse down')
+    if (this.canvas.props.path !== this) {
+      this.canvas.updateState({ path: this })
+      this.showSelectors()
+    }
     this.canvas.updateState({ active: this })
     this.st = this.transform()
     this.sb = this.getBBox()
@@ -214,22 +218,22 @@ class Path {
   finish() {
     const point = this.canvas.props.point
     this.draftPath.remove()
-    this.showControls()
+    this.hideControls()
+    this.showSelectors()
   }
 
   toggle() {
-    if (this.selectors.attr('display') === 'none') {
-      this.mode = 'selector'
-      this.showSelectors()
-      this.hideControls()
-    } else {
-      this.mode = 'control'
+    if (this.controls.attr('display') === 'none') {
       this.hideSelectors()
       this.showControls()
+    } else {
+      this.showSelectors()
+      this.hideControls()
     }
   }
 
   showSelectors() {
+    this.mode = 'selector'
     this.selectors.attr({ display: 'inline' })
   }
 
@@ -238,6 +242,7 @@ class Path {
   }
 
   showControls() {
+    this.mode = 'control'
     this.controls.attr({ display: 'inline' })
     for (let segment of this.segments) {
       segment.show()
