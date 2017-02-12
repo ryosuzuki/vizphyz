@@ -10,7 +10,7 @@ class Sidebar extends Component {
     super()
     this.state = {
       images: [],
-      keyword: ''
+      keyword: 'elephant'
     }
     window.sidebar = this
   }
@@ -30,7 +30,7 @@ class Sidebar extends Component {
 
   onClick(image) {
     console.log(image)
-    window.canvas.updateImage(image)
+    window.canvas.addImage(image)
   }
 
   searchImage() {

@@ -29,6 +29,9 @@ class Canvas extends Component {
 
     this.background = new Background(this)
 
+    this.imageLayer = this.group()
+    this.imageLayer.attr({ id: 'image-layer' })
+
     this.content = canvas.svg()
     this.content.attr({
       width: 580,
@@ -41,6 +44,7 @@ class Canvas extends Component {
 
     this.layer = this.group()
     this.layer.attr({ id: 'layer-0' })
+
     this.controls = this.group()
     this.controls.attr({ id: 'controls' })
 
@@ -168,6 +172,28 @@ class Canvas extends Component {
 
     // this.props.store.dispatch(actions.updateState(state))
     // this.props.store.dispatch(actions.updateState(Object.assign(this.props.state, state)))
+  }
+
+  addImage(image) {
+    let ratio, width, height
+    if (image.width > image.height) {
+      ratio = image.height / image.width
+      width = this.width / 2
+      height = width * ratio
+    } else {
+      ratio = image.width / image.height
+      height = this.height / 2
+      width = height * ratio
+    }
+    const x = this.props.offsetX
+    const y = this.props.offsetY
+    const path = this.image(image.url, x, y, width, height)
+    path.attr({ opacity: 0.5 })
+
+    path.mousedown(function(event) {
+      console.log('image mousedown')
+    });
+    this.imageLayer.add(path)
   }
 
   save(type) {
