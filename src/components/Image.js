@@ -27,6 +27,8 @@ class Image {
 
   onMouseDown(event) {
     console.log('image mouse down')
+    if (this.canvas.props.mode !== 'select') return false
+
     if (this.canvas.props.path !== this) {
       this.canvas.updateState({ path: this })
       this.showSelectors()
