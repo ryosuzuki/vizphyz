@@ -10,13 +10,22 @@ class Sidebar extends Component {
     super()
     this.state = {
       images: [],
-      keyword: 'elephant'
+      keyword: ''
     }
     window.sidebar = this
   }
 
   componentDidMount() {
-    this.searchImage()
+    const images = [{
+      url: 'http://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1440/MA_00077427_yjtgnj.jpg',
+      width: 1440,
+      height: 1283,
+      thumbnail: {
+        url: 'http://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1440/MA_00077427_yjtgnj.jpg'
+      }
+    }]
+    this.setState({ images: images })
+    // this.searchImage()
   }
 
   onChange(event) {
@@ -39,6 +48,7 @@ class Sidebar extends Component {
       this.setState({ images: [] })
       return false
     }
+
     client.search(this.state.keyword)
     .then((images) => {
       console.log(images)
