@@ -6,6 +6,7 @@ import moment from 'moment'
 import Background from './Background'
 import Layer from './Layer'
 import Path from './Path'
+import Image from './Image'
 
 class Canvas extends Component {
   constructor(props) {
@@ -29,8 +30,15 @@ class Canvas extends Component {
 
     this.background = new Background(this)
 
-    this.imageLayer = this.group()
-    this.imageLayer.attr({ id: 'image-layer' })
+    this.imageLayer = canvas.svg()
+    this.imageLayer.attr({
+      width: 580,
+      height: 400,
+      x: 100,
+      y: 100,
+      id: 'image-layer',
+    })
+    // this.imageLayer.attr({ id: 'image-layer' })
 
     this.content = canvas.svg()
     this.content.attr({
@@ -76,7 +84,9 @@ class Canvas extends Component {
 
     if (this.props.mode === 'select' && this.props.path) {
       this.props.path.hideSelectors()
-      this.props.path.hideControls()
+      if (this.props.path.hideControls) {
+        this.props.path.hideControls()
+      }
       this.updateState({ path: null })
       return false
     }
@@ -187,13 +197,15 @@ class Canvas extends Component {
     }
     const x = this.props.offsetX
     const y = this.props.offsetY
-    const path = this.image(image.url, x, y, width, height)
-    path.attr({ opacity: 0.5 })
-
-    path.mousedown(function(event) {
-      console.log('image mousedown')
-    });
-    this.imageLayer.add(path)
+    const path = new Image(this)
+    path.attr({
+      href: image.url,
+      x: x,
+      y: y,
+      width: width,
+      height: height,
+      opacity: 0.5
+    })
   }
 
   save(type) {
